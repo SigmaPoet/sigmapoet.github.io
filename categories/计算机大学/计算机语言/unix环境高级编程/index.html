@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>【操作系统-内核-驱动学习笔记】——虚拟内存、页表、MMU | Hexo</title>
+  <title>Hexo</title>
   <meta name="keywords" content="">
-  <meta name="description" content="【操作系统-内核-驱动学习笔记】——虚拟内存、页表、MMU | Hexo">
+  <meta name="description" content="Hexo">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="（一）gcc编译器编译选项常用的gcc编译选项如下： 1234567891011-E 对.c程序预处理，生成.i文件-S 对.c程序进行汇编，生成.s文件-c 只生成目标文件(.o)，不进行链接-o 生成可执行文件（.out)-g 生成带调试信息的debug文件-O2&#x2F;O3&#x2F;O1&#x2F;Ofast 开始编译优化选项，设置对应的编译优化等级（一般使用O2,Ofast包含O3全部的优化选项，并且不严格遵守语">
 <meta property="og:type" content="article">
@@ -59,7 +59,7 @@
 
 
 <body>
-<aside class="nav">
+<aside class="nav mobile">
     <div class="nav-left">
         <a href="/"
    class="avatar_target">
@@ -106,7 +106,7 @@
     <li>
         <div class="all active" data-rel="All">All
             
-                <small>(8)</small>
+                <small>(10)</small>
             
         </div>
     </li>
@@ -133,7 +133,7 @@
         <div data-rel="计算机大学">
             <i class="fold iconfont icon-right"></i>
             计算机大学
-            <small>(5)</small>
+            <small>(7)</small>
         </div>
         
             <ul class="sub hide">
@@ -160,10 +160,44 @@
     </li>
 
                 
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言">
+            <i class="fold iconfont icon-right"></i>
+            计算机语言
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言&lt;---&gt;unix环境高级编程">
+            
+            unix环境高级编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
             </ul>
         
     </li>
 
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
             
         
     
@@ -186,7 +220,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="8">
+<input type="hidden" id="yelog_site_posts_number" value="10">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -250,6 +284,15 @@
         
         
         <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81MMU%E5%92%8C%E9%A1%B5%E8%A1%A8/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="虚拟内存、页表、MMU">虚拟内存、页表、MMU</span>
+            <span class="post-date" title="2023-10-20 00:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
            href="/2023/10/20/unix%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
            data-tag=""
            data-author="" >
@@ -259,19 +302,10 @@
         
         
         <a  class="All 计算机大学 操作系统 "
-           href="/2023/10/20/%E3%80%90%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E3%80%81%E5%86%85%E6%A0%B8%E3%80%81%E9%A9%B1%E5%8A%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E3%80%91%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81MMU%E5%92%8C%E9%A1%B5%E8%A1%A8/"
+           href="/2023/10/20/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"
            data-tag=""
            data-author="" >
-            <span class="post-title" title="【操作系统-内核-驱动学习笔记】——虚拟内存、页表、MMU">【操作系统-内核-驱动学习笔记】——虚拟内存、页表、MMU</span>
-            <span class="post-date" title="2023-10-20 00:00:00">2023/10/20</span>
-        </a>
-        
-        
-        <a  class="All 计算机大学 操作系统 "
-           href="/2023/10/20/%E3%80%90%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%86%85%E6%A0%B8-%E9%A9%B1%E5%8A%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E3%80%91%E2%80%94%E2%80%94%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="【操作系统-内核-驱动学习笔记】——系统调用">【操作系统-内核-驱动学习笔记】——系统调用</span>
+            <span class="post-title" title="系统调用">系统调用</span>
             <span class="post-date" title="2023-10-20 00:00:00">2023/10/20</span>
         </a>
         
@@ -311,6 +345,24 @@
             <span class="post-date" title="2023-10-18 00:00:00">2023/10/18</span>
         </a>
         
+        
+        <a  class="All 计算机大学 计算机语言 "
+           href="/2023/10/15/extern%20C%E6%B5%85%E6%9E%90/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="extern “C”浅析">extern “C”浅析</span>
+            <span class="post-date" title="2023-10-15 00:00:00">2023/10/15</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 unix环境高级编程 "
+           href="/2023/10/15/unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="unix域套接字">unix域套接字</span>
+            <span class="post-date" title="2023-10-15 00:00:00">2023/10/15</span>
+        </a>
+        
         <div id="no-item-tips">
 
         </div>
@@ -327,53 +379,12 @@
         </div>
     </div>
 </aside>
-<div id="post">
+<div id="post" class="index">
     <div class="pjax">
-        <article id="post-【操作系统、内核、驱动学习笔记】——虚拟内存、MMU和页表" class="article article-type-post" itemscope itemprop="blogPost">
+        <article class="index">
+            <div class="toc-ref">
     
-        <h1 class="article-title">【操作系统-内核-驱动学习笔记】——虚拟内存、页表、MMU</h1>
-    
-    <div class="article-meta">
-        
-        
-        
-        <span class="book">
-            <i class="iconfont icon-category"></i>
-            
-            
-            <a  data-rel="计算机大学">计算机大学</a> > 
-            
-            <a  data-rel="计算机大学&lt;---&gt;操作系统">操作系统</a>
-            
-        </span>
-        
-        
-    </div>
-    <div class="article-meta">
-        
-            Created At : <time class="date" title='Updated At: 2023-10-20 08:24:55'>2023-10-20 00:00</time>
-        
-    </div>
-    <div class="article-meta">
-        
-        
-        <span id="busuanzi_container_page_pv">
-            Views 👀 :<span id="busuanzi_value_page_pv">
-                <span class="count-comment">
-                    <span class="spinner">
-                      <div class="cube1"></div>
-                      <div class="cube2"></div>
-                    </span>
-                </span>
-            </span>
-        </span>
-        
-        
-    </div>
-    
-    <div class="toc-ref">
-    
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-text">虚拟内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B5%E8%A1%A8"><span class="toc-text">页表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%98%A0%E5%B0%84%E8%BF%87%E7%A8%8B"><span class="toc-text">具体映射过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%BA%E9%A1%B5"><span class="toc-text">缺页</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MMU"><span class="toc-text">MMU</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5-1"><span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%A9%BA%E9%97%B4%E9%97%AE%E9%A2%98"><span class="toc-text">时间空间问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E6%B5%81%E7%A8%8B"><span class="toc-text">访问流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SigmaPoet%E2%80%99s-Blog"><span class="toc-text">SigmaPoet’s Blog</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#My-Blog"><span class="toc-text">My Blog</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8ESigmaPoet"><span class="toc-text">关于SigmaPoet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E7%AB%99%E6%95%B0%E6%8D%AE"><span class="toc-text">本站数据</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -386,71 +397,34 @@
     }
 </style>
 </div>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><p>虚拟内存的出现是为了解决<strong>程序大于内存</strong>问题，其基本的思想是：每个程序拥有自己独立的地址空间，这个空间被分成多个块，每个块称作一<strong>页</strong>或<strong>页面</strong>。每一页有连续的地址范围。这些页被映射到物理内存，但并不是所有的页都必须在内存中才能运行程序。</p>
-<p>由程序产生的地址称为<strong>虚拟地址</strong>，所有的虚拟地址共同构成了<strong>虚拟地址空间</strong>。在没有内存管理单元（MMU）的计算机上，这些虚拟地址将直接送到内存总线，读写具有相同地址的物理内存。在使用MMU的计算机上，这些虚拟地址先送到MMU，由MMU映射为物理内存地址，再送到内存总线。</p>
-<h2 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>虚拟地址空间按固定大小划分成若干单元，每一单元被称为<strong>页面</strong>，在物理内存中对应的单元称为<strong>页框</strong>。一个程序的页面数量往往大于页框数量，需要建立页面与页框的映射关系，完成虚拟地址向物理地址的转换。</p>
-<p><strong>页表</strong>负责把虚拟页面映射为页框，虚拟页号为页表的索引，由此找到虚拟页面对应的页表项，由页表项可以找到页框号。</p>
-<h3 id="具体映射过程"><a href="#具体映射过程" class="headerlink" title="具体映射过程"></a>具体映射过程</h3><p>假设虚拟地址空间有16个页面，每个页面大小4KB。以16位虚拟地址为例，则其高4位可以表示16个页面，低12位可以表示一个页面的全部4096个字节。以虚拟地址8196为例，其二进制表示形式0010000000000100，则其虚拟页号为0010，在页表中索引0010对应的页表项，假设为110，即对应页框号为6，则页框号与低12位偏移共同构成了15位的物理地址，送入内存总线。</p>
-<div align=center>
-    <img src="https://picbed.sigmapoet.com/img/2023071801.jpg" height="40%" width="40%">
-</div>
+            <h1 id="SigmaPoet’s-Blog"><a href="#SigmaPoet’s-Blog" class="headerlink" title="SigmaPoet’s Blog"></a>SigmaPoet’s Blog</h1><h2 id="My-Blog"><a href="#My-Blog" class="headerlink" title="My Blog"></a>My Blog</h2><p>自己写Blog，经历了三个阶段。</p>
+<blockquote>
+<p>第一阶段，想把平时学习、读书内容记录下来，方便自己日后翻看，于是写了很多markdown文档。</p>
+</blockquote>
+<blockquote>
+<p>第二阶段，想上一个博客，但发现第三方博客平台限制太多，就自己购买域名和空间，搭建独立博客。</p>
+</blockquote>
+<blockquote>
+<p>第三阶段，搭建的wordpress博客在平稳运行了一年多后，被黑客删库。于是想找一种半自主的方式写博客。慢慢出之前的库存+写新的博客。</p>
+</blockquote>
+<p>通过博客，我们可以记录自己的生活和成长的轨迹。在网络空间上，划分出自己的精神归属空间。</p>
+<h2 id="关于SigmaPoet"><a href="#关于SigmaPoet" class="headerlink" title="关于SigmaPoet"></a>关于SigmaPoet</h2><p>本站是<strong>SigmaPoet</strong>的个人站。</p>
+<p>本人喜欢摄影、骑车、读书、计算机技术、黑科技、电子数码等，是一个专注于自己内心精神世界建设的人。</p>
+<p>Sigma——数学中的求和符号，代表以理性的视角审视世界；</p>
+<p>Poet——诗和远方中的诗，代表以感性的态度体会生活。</p>
+<p>爱国、爱家、爱人、爱自己。</p>
+<p>保持平和，保持稳定，保持积极。</p>
+<p>敢于开始，敢于进步，敢于胜利。</p>
+<h2 id="本站数据"><a href="#本站数据" class="headerlink" title="本站数据"></a>本站数据</h2><p>到目前为止已经写了<code class="article_number"></code>篇文章。</p>
+<p>本站访问人数：<code class="site_uv"></code>人次 ， 访问量：<code class="site_pv"></code>次</p>
 
-
-<p>上述转换规则可以简化成以下过程：</p>
-<ol>
-<li>由虚拟地址提取出虚拟页面号（高位部分）和页内偏移量（低位部分）</li>
-<li>使用虚拟页面号在页表内进行索引，查询该页表项对应的页框号</li>
-<li>将页框号和页内偏移量重组成物理地址，送入内存总线</li>
-</ol>
-<h3 id="缺页"><a href="#缺页" class="headerlink" title="缺页"></a>缺页</h3><p>当页表内存在虚拟页面号对应的页框时，不会产生<strong>缺页中断</strong>或<strong>缺页错误</strong>。页表项中会有一个“在&#x2F;不在“位来表示虚拟页面有没有被映射，当页表内没有对某一虚拟页面的映射时，访问该虚拟页面会引起缺页中断或缺页错误。此时操作系统会建立内存中的一个页框和该虚拟页面的映射关系，保存在页表中。当然，该页框可能来源于未被使用或将很少使用的页框落盘后回收。</p>
-<h2 id="MMU"><a href="#MMU" class="headerlink" title="MMU"></a>MMU</h2><h3 id="基本概念-1"><a href="#基本概念-1" class="headerlink" title="基本概念"></a>基本概念</h3><p>内存管理单元的三个主要作用：</p>
-<ul>
-<li>提供虚拟地址和物理地址的映射</li>
-<li>内存访问权限保护</li>
-<li>Cache缓存控制</li>
-</ul>
-<p>MMU的存在可以为系统的每个用户进程分配独立的内存空间，并且保证了用户空间不能访问内核空间地址，为操作系统实现内存管理模块提供硬件基础。</p>
-<h3 id="时间空间问题"><a href="#时间空间问题" class="headerlink" title="时间空间问题"></a>时间空间问题</h3><p>采取了虚拟内存和页表的分页系统往往会面临以下两个问题：</p>
-<ul>
-<li>时间上：虚拟地址到物理地址的映射必须要快</li>
-<li>空间上：如果虚拟空间地址很大，页表也会很大</li>
-</ul>
-<p>针对时间问题，MMU设计了<strong>转换检测缓冲区（Translation Lookaside Buffer, TLB）</strong>，也称为<strong>快表</strong>，是MMU的核心部件。根据长期的观察，大多数程序总是对少量的页面进行多次的访问，因此缓存少量的虚拟地址与物理地址的映射关系，可以加快映射速度。如果在TLB中没有要访问的虚拟页面的映射关系时，就需要去内存中访问页表，查询虚拟页面和页框的映射关系。</p>
-<p>针对空间问题，有两种方法：<strong>多级页表</strong>和<strong>倒排页表</strong>。多级页表的引入避免把全部页表一直保存在内存中。倒排页表则基于这种思想：让页框对应页表中的页表项，而非每一个虚拟页面去对应页表项（由于页面数量大于页框数量，这样相当于增加了映射复杂度，但减小了页表的大小）。</p>
-<h3 id="访问流程"><a href="#访问流程" class="headerlink" title="访问流程"></a>访问流程</h3><p>不详述，请看下图，结合知识自行回忆思考，以加深理解。</p>
-<div align=center>
-    <img src="https://picbed.sigmapoet.com/img/2023071802.jpg" width="60%" height="60%">
-</div>
-
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li>《现代操作系统》3.3 虚拟内存</li>
-<li>《Linux设备驱动开发详解》 第11章 内存与I&#x2F;O访问</li>
-</ol>
-
-      
-       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
-    </div>
-</article>
-
-
-<p>
-    <a  class="dashang" onclick="dashangToggle()">💰</a>
-</p>
-
-
-
-
-
-
-    
-
-
-
-
+        </article>
+        
+        <p>
+            <a  class="dashang" onclick="dashangToggle()">赏</a>
+        </p>
+        
+        
     </div>
     <div class="copyright">
         <p class="footer-entry">
@@ -459,11 +433,11 @@
 <p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
     </div>
-    <div class="full-toc">
-        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+</div>
+<div class="full-toc">
+    <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
 <a class="" id="rocket" ></a>
 
-    </div>
 </div>
 
 <div class="hide_box" onclick="dashangToggle()"></div>
@@ -539,33 +513,33 @@
     
     
     .nav {
-        width: 542px;
+        width: 562px;
     }
     .nav.fullscreen {
-        margin-left: -542px;
+        margin-left: -562px;
     }
     .nav-left {
-        width: 120px;
+        width: 140px;
     }
     
     
     @media screen and (max-width: 1468px) {
         .nav {
-            width: 492px;
+            width: 512px;
         }
         .nav.fullscreen {
-            margin-left: -492px;
+            margin-left: -512px;
         }
         .nav-left {
-            width: 100px;
+            width: 120px;
         }
     }
     
     
     @media screen and (max-width: 1024px) {
         .nav {
-            width: 492px;
-            margin-left: -492px
+            width: 512px;
+            margin-left: -512px
         }
         .nav.fullscreen {
             margin-left: 0;

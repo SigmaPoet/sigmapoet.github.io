@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>《断舍离》读书摘记 | Hexo</title>
+  <title>虚拟内存、页表、MMU | Hexo</title>
   <meta name="keywords" content="">
-  <meta name="description" content="《断舍离》读书摘记 | Hexo">
+  <meta name="description" content="虚拟内存、页表、MMU | Hexo">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="（一）gcc编译器编译选项常用的gcc编译选项如下： 1234567891011-E 对.c程序预处理，生成.i文件-S 对.c程序进行汇编，生成.s文件-c 只生成目标文件(.o)，不进行链接-o 生成可执行文件（.out)-g 生成带调试信息的debug文件-O2&#x2F;O3&#x2F;O1&#x2F;Ofast 开始编译优化选项，设置对应的编译优化等级（一般使用O2,Ofast包含O3全部的优化选项，并且不严格遵守语">
 <meta property="og:type" content="article">
@@ -381,9 +381,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-《断舍离》读书摘记" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-虚拟内存、MMU和页表" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">《断舍离》读书摘记</h1>
+        <h1 class="article-title">虚拟内存、页表、MMU</h1>
     
     <div class="article-meta">
         
@@ -393,7 +393,9 @@
             <i class="iconfont icon-category"></i>
             
             
-            <a  data-rel="读书">读书</a>
+            <a  data-rel="计算机大学">计算机大学</a> > 
+            
+            <a  data-rel="计算机大学&lt;---&gt;操作系统">操作系统</a>
             
         </span>
         
@@ -401,7 +403,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2023-10-19 19:43:11'>2023-10-19 00:00</time>
+            Created At : <time class="date" title='Updated At: 2023-10-20 09:18:34'>2023-10-20 00:00</time>
         
     </div>
     <div class="article-meta">
@@ -423,7 +425,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-text">虚拟内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B5%E8%A1%A8"><span class="toc-text">页表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%98%A0%E5%B0%84%E8%BF%87%E7%A8%8B"><span class="toc-text">具体映射过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%BA%E9%A1%B5"><span class="toc-text">缺页</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MMU"><span class="toc-text">MMU</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5-1"><span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%A9%BA%E9%97%B4%E9%97%AE%E9%A2%98"><span class="toc-text">时间空间问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E6%B5%81%E7%A8%8B"><span class="toc-text">访问流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -439,83 +441,47 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <ul>
-<li><p>很多人觉得我们需要不断地“累积”一些东西，等到了一定程度之后，也许就可以从此快乐幸福了。 </p>
-</li>
-<li><p>断舍离：断——断绝想要进入自己家的不想要的东西；舍——舍弃家里到处泛滥的破烂；离——脱离对物品的执念，处于游刃有余的空间。</p>
-</li>
-<li><p>断舍离的主角并不是物品，而是自己。这是一种以“物品和自己的关系”为核心，取舍选择物品的技术。**你要做到的思考方式并不是“这东西还能使，所以要留下来”，而是“我要用，所以它很必要”。 **</p>
-</li>
-<li><p>想来，我们的生活是在不停地做加法。这个也想要，那个也想要，走上街，到处都充斥着无穷无尽的物品。然而无论是物理上还是精神上，我们是不是连“让自己混乱的东西”都背上身了呢？近距离观察高野山的生活，让我发现了从加法生活转向减法生活的重要性。</p>
-</li>
-</ul>
-<blockquote>
-<p>生活要做减法</p>
-</blockquote>
+        <h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><p>虚拟内存的出现是为了解决<strong>程序大于内存</strong>问题，其基本的思想是：每个程序拥有自己独立的地址空间，这个空间被分成多个块，每个块称作一<strong>页</strong>或<strong>页面</strong>。每一页有连续的地址范围。这些页被映射到物理内存，但并不是所有的页都必须在内存中才能运行程序。</p>
+<p>由程序产生的地址称为<strong>虚拟地址</strong>，所有的虚拟地址共同构成了<strong>虚拟地址空间</strong>。在没有内存管理单元（MMU）的计算机上，这些虚拟地址将直接送到内存总线，读写具有相同地址的物理内存。在使用MMU的计算机上，这些虚拟地址先送到MMU，由MMU映射为物理内存地址，再送到内存总线。</p>
+<h2 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>虚拟地址空间按固定大小划分成若干单元，每一单元被称为<strong>页面</strong>，在物理内存中对应的单元称为<strong>页框</strong>。一个程序的页面数量往往大于页框数量，需要建立页面与页框的映射关系，完成虚拟地址向物理地址的转换。</p>
+<p><strong>页表</strong>负责把虚拟页面映射为页框，虚拟页号为页表的索引，由此找到虚拟页面对应的页表项，由页表项可以找到页框号。</p>
+<h3 id="具体映射过程"><a href="#具体映射过程" class="headerlink" title="具体映射过程"></a>具体映射过程</h3><p>假设虚拟地址空间有16个页面，每个页面大小4KB。以16位虚拟地址为例，则其高4位可以表示16个页面，低12位可以表示一个页面的全部4096个字节。以虚拟地址8196为例，其二进制表示形式0010000000000100，则其虚拟页号为0010，在页表中索引0010对应的页表项，假设为110，即对应页框号为6，则页框号与低12位偏移共同构成了15位的物理地址，送入内存总线。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023071801.jpg" height="40%" width="40%">
+</div>
+
+
+<p>上述转换规则可以简化成以下过程：</p>
+<ol>
+<li>由虚拟地址提取出虚拟页面号（高位部分）和页内偏移量（低位部分）</li>
+<li>使用虚拟页面号在页表内进行索引，查询该页表项对应的页框号</li>
+<li>将页框号和页内偏移量重组成物理地址，送入内存总线</li>
+</ol>
+<h3 id="缺页"><a href="#缺页" class="headerlink" title="缺页"></a>缺页</h3><p>当页表内存在虚拟页面号对应的页框时，不会产生<strong>缺页中断</strong>或<strong>缺页错误</strong>。页表项中会有一个“在&#x2F;不在“位来表示虚拟页面有没有被映射，当页表内没有对某一虚拟页面的映射时，访问该虚拟页面会引起缺页中断或缺页错误。此时操作系统会建立内存中的一个页框和该虚拟页面的映射关系，保存在页表中。当然，该页框可能来源于未被使用或将很少使用的页框落盘后回收。</p>
+<h2 id="MMU"><a href="#MMU" class="headerlink" title="MMU"></a>MMU</h2><h3 id="基本概念-1"><a href="#基本概念-1" class="headerlink" title="基本概念"></a>基本概念</h3><p>内存管理单元的三个主要作用：</p>
 <ul>
-<li>整理房间也就是整理自己。并不是心灵改变了行动，而是行动带来了心灵的变化。</li>
+<li>提供虚拟地址和物理地址的映射</li>
+<li>内存访问权限保护</li>
+<li>Cache缓存控制</li>
 </ul>
-<blockquote>
-<p>心情不好的时候，去做些什么事情，微小的行动会使自己的注意力转向，慢慢走出情绪的空洞。如果什么都不做，任凭情绪泛滥，心情会更不好。</p>
-</blockquote>
+<p>MMU的存在可以为系统的每个用户进程分配独立的内存空间，并且保证了用户空间不能访问内核空间地址，为操作系统实现内存管理模块提供硬件基础。</p>
+<h3 id="时间空间问题"><a href="#时间空间问题" class="headerlink" title="时间空间问题"></a>时间空间问题</h3><p>采取了虚拟内存和页表的分页系统往往会面临以下两个问题：</p>
 <ul>
-<li>因为当你身边没有任何多余的物品时，自然会有一种神清气爽的舒适感。</li>
+<li>时间上：虚拟地址到物理地址的映射必须要快</li>
+<li>空间上：如果虚拟空间地址很大，页表也会很大</li>
 </ul>
-<blockquote>
-<p>学习之前请先把桌子收拾干净、整齐，会让你更快的进入状态。</p>
-</blockquote>
-<ul>
-<li><p>要是自己能随便凑合着用一个东西，那别人也会用随便的态度来对待你。</p>
-</li>
-<li><p>物品要用才有价值。</p>
-</li>
-<li><p>‘大部分蒙古人都削弱了物欲，过着清心寡欲的生活。’这八成是因为蒙古人原本是游牧民族，都居住在移动式的蒙古包里，所以就只带一些必要的物品。<strong>在避免囤积物品的同时，人对物质的欲望也就淡薄了，反过来，精神世界异常丰富起来。</strong> </p>
-</li>
-<li><p>在这个消费社会里，劝人买东西的商家可是做了相当高明的研究的。</p>
-</li>
-</ul>
-<blockquote>
-<p>所以有时候不要太自责了，毕竟商家对你的考验都已经到生物本性层面了。</p>
-</blockquote>
-<ul>
-<li><p>一些研究命理的人认为，一个家庭的运气，可以从物理上看出来。这也就是说，可以从屋里灰尘的数量上看出人和家庭的整体运势。 </p>
-</li>
-<li><p>在断舍离中，基本上没有“客用”这种观点。<strong>自己很喜欢，同时一直在用着的东西，拿给客人用就好了。因为平时在用的东西，都是经过自己精挑细选的好东西，所以给别人用也挺好的。</strong>为一年一次，甚至是几年一次的事情花钱，说到底不过是虚荣罢了。</p>
-</li>
-</ul>
-<blockquote>
-<p>对！自己常用的，送给别人才是最好的，你信赖才能说服别人去信赖！ </p>
-</blockquote>
-<ul>
-<li><p>我们所居住的地方会投射出我们自身的状况。 </p>
-</li>
-<li><p>越是高级客房里的客人，退房的时候越是会把房间收拾得整整齐齐，相比之下，标准间就惨不忍睹了。因为住在那里的人，多半都会觉得反正服务员都要打扫房间，自己根本没必要收拾。其实，这并不是要做给谁看，而是自己的事就得自己好好善后。如果能拥有这种自觉性，那可是太棒了。 </p>
-</li>
-<li><p><strong>人际关系本来就是随着时间不断变化的，就算是莫名其妙地渐行渐远了，也可以心平气和地接受。</strong> </p>
-</li>
-<li><p>经济学里有个众人皆知的80&#x2F;20原则，说的是“80％的营业额都是由20％的营业员达成的”。</p>
-</li>
-</ul>
-<blockquote>
-<p>也看过类似的话，说人80的成功就是由20的时间决定的，人活一生，真正有意义有效的时间，就是很少数的，这些被我们称之为机会。 </p>
-</blockquote>
-<ul>
-<li><p><strong>越是有历史的家庭，所背负的能量也就越大</strong>。</p>
-</li>
-<li><p>“可惜”还有另一种含义，那就是爱惜物品的心情。在决定把某样东西带回家的时候，请务必认真感受这种心情。因为，如果这种心情是发自内心的，那就不会把东西搬回家之后就对它置之不理。如果你连它的存在都忘光了，那就根本提不上什么爱惜了。“哎呀，竟然找出来这么个东西。”可要扔掉吧，又觉得“很可惜”。一旦用了“可惜”这个词，可就谈不上是对物品的爱惜了，而只不过是嫌麻烦的赦免令，或者是对物品的执念。 </p>
-</li>
-<li><p><strong>阻碍我们行动的一个很重要的原因就是选项太多以至于无从选择，也就是“回避决定原则”。</strong> </p>
-</li>
-<li><p>据说，如果经常把一大堆东西一股脑塞给孩子，那他们就有可能成长为没有自主性、选择能力低下的人。想想看，你身边有没有那种口头禅是“无所谓”的人呢？那就是**从小被给予得太多，没能学会思考自己需要的到底是什么。 **</p>
-</li>
-<li><p>大多数人都会在事后发觉：<strong>“会让我犹豫的东西，果然还是不需要。”</strong></p>
-</li>
-<li><p>可我们难道真有必要为了完全未知的未来做太多无端的准备吗？所谓“将来的某一天”，等到那天真的到来的时候再来应对就好了。要是能这么想，“替将来留好”这种观念也就跟着不存在了。</p>
-</li>
-</ul>
-<blockquote>
-<p>不要杠，这跟未雨绸缪是两回事。</p>
-</blockquote>
+<p>针对时间问题，MMU设计了<strong>转换检测缓冲区（Translation Lookaside Buffer, TLB）</strong>，也称为<strong>快表</strong>，是MMU的核心部件。根据长期的观察，大多数程序总是对少量的页面进行多次的访问，因此缓存少量的虚拟地址与物理地址的映射关系，可以加快映射速度。如果在TLB中没有要访问的虚拟页面的映射关系时，就需要去内存中访问页表，查询虚拟页面和页框的映射关系。</p>
+<p>针对空间问题，有两种方法：<strong>多级页表</strong>和<strong>倒排页表</strong>。多级页表的引入避免把全部页表一直保存在内存中。倒排页表则基于这种思想：让页框对应页表中的页表项，而非每一个虚拟页面去对应页表项（由于页面数量大于页框数量，这样相当于增加了映射复杂度，但减小了页表的大小）。</p>
+<h3 id="访问流程"><a href="#访问流程" class="headerlink" title="访问流程"></a>访问流程</h3><p>不详述，请看下图，结合知识自行回忆思考，以加深理解。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023071802.jpg" width="60%" height="60%">
+</div>
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li>《现代操作系统》3.3 虚拟内存</li>
+<li>《Linux设备驱动开发详解》 第11章 内存与I&#x2F;O访问</li>
+</ol>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>

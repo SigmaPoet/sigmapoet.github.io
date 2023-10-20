@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>《断舍离》读书摘记 | Hexo</title>
+  <title>extern “C”浅析 | Hexo</title>
   <meta name="keywords" content="">
-  <meta name="description" content="《断舍离》读书摘记 | Hexo">
+  <meta name="description" content="extern “C”浅析 | Hexo">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="（一）gcc编译器编译选项常用的gcc编译选项如下： 1234567891011-E 对.c程序预处理，生成.i文件-S 对.c程序进行汇编，生成.s文件-c 只生成目标文件(.o)，不进行链接-o 生成可执行文件（.out)-g 生成带调试信息的debug文件-O2&#x2F;O3&#x2F;O1&#x2F;Ofast 开始编译优化选项，设置对应的编译优化等级（一般使用O2,Ofast包含O3全部的优化选项，并且不严格遵守语">
 <meta property="og:type" content="article">
@@ -381,9 +381,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-《断舍离》读书摘记" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-extern C浅析" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">《断舍离》读书摘记</h1>
+        <h1 class="article-title">extern “C”浅析</h1>
     
     <div class="article-meta">
         
@@ -393,7 +393,9 @@
             <i class="iconfont icon-category"></i>
             
             
-            <a  data-rel="读书">读书</a>
+            <a  data-rel="计算机大学">计算机大学</a> > 
+            
+            <a  data-rel="计算机大学&lt;---&gt;计算机语言">计算机语言</a>
             
         </span>
         
@@ -401,7 +403,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2023-10-19 19:43:11'>2023-10-19 00:00</time>
+            Created At : <time class="date" title='Updated At: 2023-10-20 09:21:47'>2023-10-15 00:00</time>
         
     </div>
     <div class="article-meta">
@@ -423,7 +425,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E9%97%A8%E8%A7%81%E5%B1%B1"><span class="toc-text">开门见山</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90"><span class="toc-text">原理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E9%87%8D%E8%BD%BD"><span class="toc-text">函数重载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E7%AC%A6%E5%8F%B7"><span class="toc-text">函数符号</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -439,83 +441,51 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <ul>
-<li><p>很多人觉得我们需要不断地“累积”一些东西，等到了一定程度之后，也许就可以从此快乐幸福了。 </p>
-</li>
-<li><p>断舍离：断——断绝想要进入自己家的不想要的东西；舍——舍弃家里到处泛滥的破烂；离——脱离对物品的执念，处于游刃有余的空间。</p>
-</li>
-<li><p>断舍离的主角并不是物品，而是自己。这是一种以“物品和自己的关系”为核心，取舍选择物品的技术。**你要做到的思考方式并不是“这东西还能使，所以要留下来”，而是“我要用，所以它很必要”。 **</p>
-</li>
-<li><p>想来，我们的生活是在不停地做加法。这个也想要，那个也想要，走上街，到处都充斥着无穷无尽的物品。然而无论是物理上还是精神上，我们是不是连“让自己混乱的东西”都背上身了呢？近距离观察高野山的生活，让我发现了从加法生活转向减法生活的重要性。</p>
-</li>
-</ul>
-<blockquote>
-<p>生活要做减法</p>
-</blockquote>
-<ul>
-<li>整理房间也就是整理自己。并不是心灵改变了行动，而是行动带来了心灵的变化。</li>
-</ul>
-<blockquote>
-<p>心情不好的时候，去做些什么事情，微小的行动会使自己的注意力转向，慢慢走出情绪的空洞。如果什么都不做，任凭情绪泛滥，心情会更不好。</p>
-</blockquote>
-<ul>
-<li>因为当你身边没有任何多余的物品时，自然会有一种神清气爽的舒适感。</li>
-</ul>
-<blockquote>
-<p>学习之前请先把桌子收拾干净、整齐，会让你更快的进入状态。</p>
-</blockquote>
-<ul>
-<li><p>要是自己能随便凑合着用一个东西，那别人也会用随便的态度来对待你。</p>
-</li>
-<li><p>物品要用才有价值。</p>
-</li>
-<li><p>‘大部分蒙古人都削弱了物欲，过着清心寡欲的生活。’这八成是因为蒙古人原本是游牧民族，都居住在移动式的蒙古包里，所以就只带一些必要的物品。<strong>在避免囤积物品的同时，人对物质的欲望也就淡薄了，反过来，精神世界异常丰富起来。</strong> </p>
-</li>
-<li><p>在这个消费社会里，劝人买东西的商家可是做了相当高明的研究的。</p>
-</li>
-</ul>
-<blockquote>
-<p>所以有时候不要太自责了，毕竟商家对你的考验都已经到生物本性层面了。</p>
-</blockquote>
-<ul>
-<li><p>一些研究命理的人认为，一个家庭的运气，可以从物理上看出来。这也就是说，可以从屋里灰尘的数量上看出人和家庭的整体运势。 </p>
-</li>
-<li><p>在断舍离中，基本上没有“客用”这种观点。<strong>自己很喜欢，同时一直在用着的东西，拿给客人用就好了。因为平时在用的东西，都是经过自己精挑细选的好东西，所以给别人用也挺好的。</strong>为一年一次，甚至是几年一次的事情花钱，说到底不过是虚荣罢了。</p>
-</li>
-</ul>
-<blockquote>
-<p>对！自己常用的，送给别人才是最好的，你信赖才能说服别人去信赖！ </p>
-</blockquote>
-<ul>
-<li><p>我们所居住的地方会投射出我们自身的状况。 </p>
-</li>
-<li><p>越是高级客房里的客人，退房的时候越是会把房间收拾得整整齐齐，相比之下，标准间就惨不忍睹了。因为住在那里的人，多半都会觉得反正服务员都要打扫房间，自己根本没必要收拾。其实，这并不是要做给谁看，而是自己的事就得自己好好善后。如果能拥有这种自觉性，那可是太棒了。 </p>
-</li>
-<li><p><strong>人际关系本来就是随着时间不断变化的，就算是莫名其妙地渐行渐远了，也可以心平气和地接受。</strong> </p>
-</li>
-<li><p>经济学里有个众人皆知的80&#x2F;20原则，说的是“80％的营业额都是由20％的营业员达成的”。</p>
-</li>
-</ul>
-<blockquote>
-<p>也看过类似的话，说人80的成功就是由20的时间决定的，人活一生，真正有意义有效的时间，就是很少数的，这些被我们称之为机会。 </p>
-</blockquote>
-<ul>
-<li><p><strong>越是有历史的家庭，所背负的能量也就越大</strong>。</p>
-</li>
-<li><p>“可惜”还有另一种含义，那就是爱惜物品的心情。在决定把某样东西带回家的时候，请务必认真感受这种心情。因为，如果这种心情是发自内心的，那就不会把东西搬回家之后就对它置之不理。如果你连它的存在都忘光了，那就根本提不上什么爱惜了。“哎呀，竟然找出来这么个东西。”可要扔掉吧，又觉得“很可惜”。一旦用了“可惜”这个词，可就谈不上是对物品的爱惜了，而只不过是嫌麻烦的赦免令，或者是对物品的执念。 </p>
-</li>
-<li><p><strong>阻碍我们行动的一个很重要的原因就是选项太多以至于无从选择，也就是“回避决定原则”。</strong> </p>
-</li>
-<li><p>据说，如果经常把一大堆东西一股脑塞给孩子，那他们就有可能成长为没有自主性、选择能力低下的人。想想看，你身边有没有那种口头禅是“无所谓”的人呢？那就是**从小被给予得太多，没能学会思考自己需要的到底是什么。 **</p>
-</li>
-<li><p>大多数人都会在事后发觉：<strong>“会让我犹豫的东西，果然还是不需要。”</strong></p>
-</li>
-<li><p>可我们难道真有必要为了完全未知的未来做太多无端的准备吗？所谓“将来的某一天”，等到那天真的到来的时候再来应对就好了。要是能这么想，“替将来留好”这种观念也就跟着不存在了。</p>
-</li>
-</ul>
-<blockquote>
-<p>不要杠，这跟未雨绸缪是两回事。</p>
-</blockquote>
+        <h2 id="开门见山"><a href="#开门见山" class="headerlink" title="开门见山"></a>开门见山</h2><p>extern “C”是C++特有的指令（C无法使用该指令），常用于支持C++&#x2F;C混合编程，其作用是告诉C++编译器用C规则编译指定的代码（除函数重载外，extern “C”不影响C++其他特性）。</p>
+<h2 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h2><h3 id="函数重载"><a href="#函数重载" class="headerlink" title="函数重载"></a>函数重载</h3><p>C不支持函数重载，C++支持函数重载，可以<strong>根据参数类型来区别同名函数</strong>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//test.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">(<span class="type">char</span> c)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;This is a char : %c\n&quot;</span>, c);		</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;This is an int : %d\n&quot;</span>, a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a = <span class="number">3</span>;</span><br><span class="line">	<span class="type">char</span> c = <span class="string">&#x27;7&#x27;</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">print</span>(a);</span><br><span class="line">	<span class="built_in">print</span>(c);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>由上述代码，可以看到名为print的函数定义了两个，但是传入的参数类型不同。使用g++编译代码，运行，可以得到如下图所示输出：</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2022092904.png">
+</div>
+
+
+<p>可以看到，程序可以编译通过并正常执行。</p>
+<p>使用g++对test.cpp进行汇编编译，得到test.s文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -S test.cpp</span><br></pre></td></tr></table></figure>
+
+<p>打开test.s文件，可以看到，两个print函数经过编译，在汇编文件中形成的<strong>函数符号</strong>是不同的。一个是**_Z5printc<strong>，一个是</strong>_Z5printi**，函数符号后的c和i就是参数类型的代表，c表示char，i表示int。这个函数符号是后面程序进行链接时需要使用的。C++也是基于此，可以实现根据不同类型参数区分同名函数的。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2022092905.png">
+</div>
+
+
+<h3 id="函数符号"><a href="#函数符号" class="headerlink" title="函数符号"></a>函数符号</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//myAdd.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">myAdd</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> c = a + b;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, c);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>C和C++生成函数符号的规则是不同的。使用g++和gcc分别生成myAdd.c的汇编文件，可以得到如下图所示结果，其中myAdd函数按C++规则生成的函数符号是**_Z5myAddii<strong>，而按C规则生成的函数符号是</strong>myAdd**。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2022092901.png"> <img src="https://picbed.sigmapoet.com/img/2022092902.png">
+</div>
+
+
+<p>如果C和C++混合编程，myAdd.c使用C编译器，某CPP文件使用C++编译器编译，其中引用了myAdd函数，而又没有使用extern “C”，就会报myAdd函数未定义的错误。具体过程如下图所示。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2022092906.png">
+</div>
+
+
+<p>main.cpp和myAdd.h代码见下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//main.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;myAdd.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a, b;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>, &amp;a, &amp;b);</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	<span class="built_in">myAdd</span>(a, b);	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//myAdd.h</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">myAdd</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>而当加入extern “C”后，即把main.cpp改成如下所示，其中__cplusplus是C++标准库中预先定义的宏。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;myAdd.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a, b;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>, &amp;a, &amp;b);</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	<span class="built_in">myAdd</span>(a, b);	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>再按上述过程编译，则程序可以编译通过，正确运行。效果见下图。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2022092903.png">
+</div>
+
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
