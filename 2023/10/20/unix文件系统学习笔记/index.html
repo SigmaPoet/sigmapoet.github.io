@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>I/O缓冲 | Hexo</title>
+  <title>unix文件系统学习笔记 | Hexo</title>
   <meta name="keywords" content="">
-  <meta name="description" content="I/O缓冲 | Hexo">
+  <meta name="description" content="unix文件系统学习笔记 | Hexo">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="（一）gcc编译器编译选项常用的gcc编译选项如下： 1234567891011-E 对.c程序预处理，生成.i文件-S 对.c程序进行汇编，生成.s文件-c 只生成目标文件(.o)，不进行链接-o 生成可执行文件（.out)-g 生成带调试信息的debug文件-O2&#x2F;O3&#x2F;O1&#x2F;Ofast 开始编译优化选项，设置对应的编译优化等级（一般使用O2,Ofast包含O3全部的优化选项，并且不严格遵守语">
 <meta property="og:type" content="article">
@@ -329,9 +329,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-IO缓冲" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-unix文件系统学习笔记" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">I/O缓冲</h1>
+        <h1 class="article-title">unix文件系统学习笔记</h1>
     
     <div class="article-meta">
         
@@ -351,7 +351,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2023-10-19 21:40:18'>2023-10-18 00:00</time>
+            Created At : <time class="date" title='Updated At: 2023-10-20 08:21:53'>2023-10-20 00:00</time>
         
     </div>
     <div class="article-meta">
@@ -373,7 +373,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6IO%E7%9A%84%E5%86%85%E6%A0%B8%E7%BC%93%E5%86%B2"><span class="toc-text">文件IO的内核缓冲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%B7%E6%96%B0%E6%96%87%E4%BB%B6IO%E7%9A%84%E5%86%85%E6%A0%B8%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="toc-text">刷新文件IO的内核缓冲区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E6%96%87%E4%BB%B6IO%E5%86%85%E6%A0%B8%E7%BC%93%E5%86%B2%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">控制文件IO内核缓冲的系统调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E6%96%87%E4%BB%B6IO%E5%86%85%E6%A0%B8%E7%BC%93%E5%86%B2%E7%9A%84%E6%A0%87%E5%BF%97"><span class="toc-text">控制文件IO内核缓冲的标志</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5IO"><span class="toc-text">直接IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stdio%E7%BC%93%E5%86%B2"><span class="toc-text">stdio缓冲</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#stdio%E7%BC%93%E5%86%B2%E7%AE%80%E4%BB%8B"><span class="toc-text">stdio缓冲简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E6%96%B0stdio%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="toc-text">刷新stdio缓冲区</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B7%E5%90%88%E4%BD%BF%E7%94%A8%E6%96%87%E4%BB%B6IO%E4%B8%8E%E6%A0%87%E5%87%86IO"><span class="toc-text">混合使用文件IO与标准IO</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter2-The-Filesystem"><span class="toc-text">Chapter2. The Filesystem</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter3-The-Root-Filesystem"><span class="toc-text">Chapter3. The Root Filesystem</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Requirements"><span class="toc-text">3.2 Requirements</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Specific-Options"><span class="toc-text">3.3 Specific Options</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#others"><span class="toc-text">others</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter4-The-usr-Hierarchy"><span class="toc-text">Chapter4. The &#x2F;usr Hierarchy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Requirements"><span class="toc-text">4.2 Requirements</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Specific-Options"><span class="toc-text">4.3 Specific Options</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter5-The-var-Hierarchy"><span class="toc-text">Chapter5. The &#x2F;var Hierarchy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Requirements"><span class="toc-text">5.2 Requirements</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Specific-Options"><span class="toc-text">5.3 Specific Options</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -389,68 +389,274 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="文件IO的内核缓冲"><a href="#文件IO的内核缓冲" class="headerlink" title="文件IO的内核缓冲"></a>文件IO的内核缓冲</h2><p>read()、write()系统调用在进行文件读写操作时，不会直接访问磁盘设备，而仅在<strong>用户空间缓冲区</strong>和<strong>内核缓冲区</strong>之间复制数据。</p>
-<p>例如</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">write</span>(fd, <span class="string">&quot;hello&quot;</span>, <span class="number">5</span>);</span><br></pre></td></tr></table></figure>
-
-<p>上述代码只是将字符串”hello”拷贝到内核缓冲区就返回，而不是等数据写入磁盘中才返回，这证明<strong>系统调用与磁盘操作并不同步</strong>。具体什么时间数据会写入磁盘并不确定，由内核相应的存储算法进行判断。</p>
-<h2 id="刷新文件IO的内核缓冲区"><a href="#刷新文件IO的内核缓冲区" class="headerlink" title="刷新文件IO的内核缓冲区"></a>刷新文件IO的内核缓冲区</h2><h3 id="控制文件IO内核缓冲的系统调用"><a href="#控制文件IO内核缓冲的系统调用" class="headerlink" title="控制文件IO内核缓冲的系统调用"></a>控制文件IO内核缓冲的系统调用</h3><ul>
-<li>sync()：将所有文件IO内核缓冲区的数据和元数据写入到磁盘中</li>
-<li>syncfs()</li>
-<li>fsync()：将fd所指文件的数据和元数据写入到磁盘中</li>
-<li>fdatasync()：将fd所指文件的数据（不含元数据）写入到磁盘中</li>
+        <h2 id="Chapter2-The-Filesystem"><a href="#Chapter2-The-Filesystem" class="headerlink" title="Chapter2. The Filesystem"></a>Chapter2. The Filesystem</h2><ul>
+<li>FHS依据文件系统使用的频繁与否与是否允许用户随意修改，将目录定义为四种交互作用的形态。</li>
 </ul>
-<p><strong>元数据</strong>：并不是文件内容，而是记录文件属性相关的数据信息</p>
-<p>以上四个系统调用，都可以实现将文件IO内核缓冲区的数据写入到磁盘中，具体用法可以用<code> man 2 sync/syncfs/fsync/fdatasync</code>来查看。</p>
-<h3 id="控制文件IO内核缓冲的标志"><a href="#控制文件IO内核缓冲的标志" class="headerlink" title="控制文件IO内核缓冲的标志"></a>控制文件IO内核缓冲的标志</h3><p>可以在使用系统调用open()时，加入O_DSYNC或O_SYNC标志。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>shareable</th>
+<th>unshareable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>static</td>
+<td>&#x2F;usr<br>&#x2F;opt</td>
+<td>&#x2F;etc<br>&#x2F;boot</td>
+</tr>
+<tr>
+<td>variable</td>
+<td>&#x2F;var&#x2F;mail<br>&#x2F;var&#x2F;spool&#x2F;news</td>
+<td>&#x2F;var&#x2F;run<br>&#x2F;var&#x2F;lock</td>
+</tr>
+</tbody></table>
+<p>可分享（shareable）：可以分享给其它系统挂载使用的目录。</p>
+<p>不可分享（unshareable）：自己机器上运行的设备文件或与程序有关的socket文件，仅与自身机器有关。</p>
+<p>不变（static）：不会经常变动的数据，跟随着发行版而不变动。</p>
+<p>可变动（variable）：经常修改的数据。</p>
 <ul>
-<li><p>O_DSYNC</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fd = <span class="built_in">open</span>(filepath, O_WRONLY|O_DSYNC);</span><br></pre></td></tr></table></figure>
-
-<p>效果相当于每次调用write()后调用fdatasync()。</p>
-</li>
-<li><p>O_SYNC</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fd = <span class="built_in">open</span>(filepath, O_WRONLY|D_SYNC);</span><br></pre></td></tr></table></figure>
-
-<p>效果相当于每次调用write()后调用fsync()。</p>
+<li>FHS定义出三层目录下面应该放置的数据类型：<ul>
+<li>&#x2F;（根目录）：与启动系统有关</li>
+<li>&#x2F;usr (unix software resource)：与软件安装、执行有关</li>
+<li>&#x2F;var (variable)：与系统运行过程有关</li>
+</ul>
 </li>
 </ul>
-<p>对性能的影响：频繁调用sync或控制标志对性能的影响极大，大部分应用程序无此需求。</p>
-<h2 id="直接IO"><a href="#直接IO" class="headerlink" title="直接IO"></a>直接IO</h2><p>绕过内核缓冲，从用户空间直接将数据传递到文件&#x2F;磁盘设备，也称为direct I&#x2F;O或raw I&#x2F;O，这种方式在特定场景下使用，一般不常用。而且由于直接IO，有对齐限制（每次写的字节数、长度等），如果不满足条件，在调用write()时均返回：Invalid Arguments。</p>
-<p>使用方法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fd = <span class="built_in">open</span>(filepath, O_WRONLY|O_DIRECT);</span><br></pre></td></tr></table></figure>
-
-<h2 id="stdio缓冲"><a href="#stdio缓冲" class="headerlink" title="stdio缓冲"></a>stdio缓冲</h2><h3 id="stdio缓冲简介"><a href="#stdio缓冲简介" class="headerlink" title="stdio缓冲简介"></a>stdio缓冲简介</h3><p>标准I&#x2F;O（stdio）的性能要高于文件I&#x2F;O，原因在于维护了自己的缓冲（stdio缓冲是用户空间的缓冲）。</p>
-<p>可以通过setbuf()、setbuffer()、setvbuf()对stdio缓冲进行设置，三个函数的使用方法可以使用<code> man 3 setbuf/setbuffer/setvbuf</code>来查看。</p>
-<p>这里特别注意常用的scanf()和printf()函数，采用<strong>行缓冲</strong>，即在输入或输出中遇到’\n’时，才执行文件IO操作。以下是验证行缓冲的例程。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sample 1</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Hello world\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Hello world&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">		<span class="built_in">sleep</span>(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行sample 1，会发现终端只输出了第一个Hello world，并没有输出第二个Hello world，这是由于printf采用行缓冲，并没有将第二行的Hello world从stdio缓冲区进行文件IO操作。</p>
-<p>使用setvbuf()将stdout设置为无缓冲模式，再运行sample 2例程，会发现两个hello world全部输出了。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sample 2</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">	ret = <span class="built_in">setvbuf</span>(stdout, <span class="literal">NULL</span>, _IONBF, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span>(ret) &#123;</span><br><span class="line">		<span class="built_in">perror</span>(<span class="string">&quot;setvbuf error&quot;</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;hello world\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(;;) &#123;</span><br><span class="line">		<span class="built_in">sleep</span>(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="刷新stdio缓冲区"><a href="#刷新stdio缓冲区" class="headerlink" title="刷新stdio缓冲区"></a>刷新stdio缓冲区</h3><ul>
-<li>强制刷新</li>
-</ul>
-<p>可以使用<code> fflush(FILE *stream)</code>函数来刷新stdio缓冲区，此函数可以将文件指针所指的文件数据从stdio缓冲区写入内核缓冲区。如果调用<code>fflush(NULL)</code>，则代表刷新所有的stdio缓冲区。运行sample 3，可以发现两个hello world全部输出了。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sample 3</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;hello world\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fflush</span>(stdout);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(;;) &#123;</span><br><span class="line">		<span class="built_in">sleep</span>(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<h2 id="Chapter3-The-Root-Filesystem"><a href="#Chapter3-The-Root-Filesystem" class="headerlink" title="Chapter3. The Root Filesystem"></a>Chapter3. The Root Filesystem</h2><h3 id="3-2-Requirements"><a href="#3-2-Requirements" class="headerlink" title="3.2 Requirements"></a>3.2 Requirements</h3><ul>
+<li><p><strong>&#x2F;bin : Essential command binaries</strong></p>
 <ul>
-<li><p>自动刷新</p>
+<li>存放可执行文件命令，如cd、cp、ls等，可以被root和一般用户共同使用</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;boot : Static files of the boot loader</strong></p>
 <ul>
-<li><p>关闭文件时自动刷新stdio缓冲区</p>
+<li>存放系统启动使用的文件。操作系统内核必须被放在<code>/</code>或<code>/boot</code>中，名称一般为vmlinuz。</li>
+</ul>
 </li>
-<li><p>程序退出时自动刷新stdio缓冲区</p>
-<p><strong>注意</strong>：使用exit()或return 0或不显式退出时会刷新stdio缓冲区，使用_exit()或_Exit()退出时，不会刷新stdio缓冲区。</p>
+<li><p><strong>&#x2F;dev : Device files</strong></p>
+<ul>
+<li>存放特殊文件或设备文件。</li>
+<li>&#x2F;dev&#x2F;null : All data written to this device is discarded. A read from this device will return an EOF condition.</li>
+<li>&#x2F;dev&#x2F;zero : All data written to this device is discarded. A read from this device will return as many bytes containing the value zero as was requested.</li>
+</ul>
 </li>
+<li><p><strong>&#x2F;etc : Host-specific system configuration</strong></p>
+<ul>
+<li>存放系统主要的配置文件。</li>
+<li>例如<ul>
+<li>&#x2F;etc&#x2F;exports : NFS配置文件</li>
+<li>&#x2F;etc&#x2F;fstab : 文件系统配置文件。如果设置了swap交换分区，则启动时就启动交换分区的配置要写在这里面。</li>
+<li>&#x2F;etc&#x2F;ftpusers : ftp配置文件</li>
+<li>&#x2F;etc&#x2F;group : 用户组配置文件</li>
+<li>&#x2F;etc&#x2F;ld.so.conf : 加载so库路径配置文件，与ldconfig命令有关。</li>
+<li>&#x2F;etc&#x2F;networks : 网络配置文件</li>
+<li>&#x2F;etc&#x2F;passed : 密码文件</li>
 </ul>
 </li>
 </ul>
-<h2 id="混合使用文件IO与标准IO"><a href="#混合使用文件IO与标准IO" class="headerlink" title="混合使用文件IO与标准IO"></a>混合使用文件IO与标准IO</h2><p>系统调用使用的是文件IO，而c标准库函数使用的是标准IO，混合使用两种IO时，要特别注意IO缓冲引起的问题（可能会影响输出信息的顺序，从而影响正确性，请运行sample 4）。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sample 4</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;print&quot;</span>);  <span class="comment">//由于是行缓冲，不能加\n</span></span><br><span class="line">	<span class="built_in">write</span>(STDOUT_FILENO, <span class="string">&quot;write\n&quot;</span>, <span class="number">6</span>);</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以发现，是write优先于print输出。</p>
-<p>参考文献：正点原子linuxC应用编程用户文档</p>
+</li>
+<li><p><strong>&#x2F;lib : Essential shared libraries and kernel modules</strong></p>
+<ul>
+<li>存放函数库文件。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;media : Mount point for removable media</strong></p>
+<ul>
+<li>存放可删除的设备（可移动介质），如软件、光盘、硬盘、U盘等，都挂载于此。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;mnt : Mount point for mounting a filesystem temporarily</strong></p>
+<ul>
+<li>临时需要挂载的文件系统的挂载点。例如我使用NFS时，就常挂载在这个目录下。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;opt : Add-on application software packages</strong></p>
+<ul>
+<li>存放第三方软件。</li>
+<li>例如安装的海思交叉编译器，保存在<code>/opt/hisi-linux</code>中。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;run : Data relevant to running processes</strong></p>
+<ul>
+<li>This directory contains system information data describing the system since it was booted.</li>
+<li>在启动过程开始，这个目录中的文件将会被清除。</li>
+<li>pid文件保存在这个目录中，.pid结尾的文件保存着不同进程的pid。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;sbin : Essential system binaries</strong></p>
+<ul>
+<li>存放系统管理员才能使用的命令&#x2F;可执行文件，例如fastboot、fdisk、ifconfig、mkfs、reboot、swapon、swapoff。</li>
+<li>某些服务器软件程序，一般放置到<code>/usr/sbin</code>。本机自行安装的软件所产生的系统执行文件，放置到<code>/usr/local/sbin</code>中。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;srv : Data for services provided by this system</strong></p>
+<ul>
+<li>service，放置一些与服务有关的文件。</li>
+<li><code>/srv</code> contains site-specific data which is served by this system.</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;tmp : Temporary files</strong></p>
+<ul>
+<li>放置临时文件，这个目录下的文件任何人都可以存取。</li>
+<li>FHS推荐，当系统启动时，清除这个目录下的所有文件。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;usr : Secondary hierarchy</strong></p>
+</li>
+<li><p><strong>&#x2F;var : Variable data</strong></p>
+</li>
+</ul>
+<h3 id="3-3-Specific-Options"><a href="#3-3-Specific-Options" class="headerlink" title="3.3 Specific Options"></a>3.3 Specific Options</h3><ul>
+<li><strong>home : User home directories (optional)</strong><ul>
+<li>一般用户的家目录。</li>
+<li>家目录中应用的配置文件以“.”开头，如果配置文件存放于一个文件夹中，则文件夹名以“.”开头。<ul>
+<li>emacs的配置文件.emacs和配置目录.emacs.d</li>
+<li>环境变量配置文件.bashrc</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>lib&lt;qual&gt; : Alternate format essential shared libraries (optional)</strong><ul>
+<li>存放与<code>/lib</code>不同格式的函数库文件，如<code>/lib32</code>、<code>/lib64</code>等。</li>
+</ul>
+</li>
+<li><strong>root : Home directory for the root user (optional)</strong><ul>
+<li>root用户的家目录。</li>
+</ul>
+</li>
+</ul>
+<h3 id="others"><a href="#others" class="headerlink" title="others"></a>others</h3><ul>
+<li><p><strong>lost+found</strong></p>
+<ul>
+<li>当文件系统发生错误时，将一些遗失的片段放置到这个目录下。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;proc</strong></p>
+<ul>
+<li>此目录本身是一个虚拟文件系统。目录下的数据在内存当中，不占任何硬盘空间。</li>
+<li>存放系统内核、进程信息、外接设备的状态、网络状态等。</li>
+<li>例如<ul>
+<li>&#x2F;proc&#x2F;cpuinfo 处理信息相关文件</li>
+<li>&#x2F;proc&#x2F;cmdline 在启动时传递至内核的相关参数信息</li>
+<li>&#x2F;proc&#x2F;devices 系统已经加载的所有块设备和字符设备的信息</li>
+<li>&#x2F;proc&#x2F;filesystems 当前被内核支持的文件系统类型列表文件</li>
+<li>&#x2F;proc&#x2F;interrupts 中断相关</li>
+<li>&#x2F;proc&#x2F;ioports 当前正在使用且已经注册过的与物理设备进行通讯的输入-输出端口范围信息列表</li>
+<li>&#x2F;proc&#x2F;meminfo 系统中关于当前内存的利用状况等的信息</li>
+<li>&#x2F;proc&#x2F;version 当前系统运行的内核版本号</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;sys</strong></p>
+<ul>
+<li>此目录本身是一个虚拟文件系统，目录下的数据在内存当中，不占任何硬盘空间。</li>
+<li>存放目前已经加载的内核模块与内核检测到的硬件设备信息。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Chapter4-The-usr-Hierarchy"><a href="#Chapter4-The-usr-Hierarchy" class="headerlink" title="Chapter4. The &#x2F;usr Hierarchy"></a>Chapter4. The &#x2F;usr Hierarchy</h2><h3 id="4-2-Requirements"><a href="#4-2-Requirements" class="headerlink" title="4.2 Requirements"></a>4.2 Requirements</h3><ul>
+<li><strong>&#x2F;usr&#x2F;bin : Most user commands</strong><ul>
+<li>存放所有一般用户能够使用的命令。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;lib : Libraries</strong><ul>
+<li>基本上，与<code>/lib</code>功能相同。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;local : Local hierarchy (empty after main installation)</strong><ul>
+<li>系统管理员在本机安装自己下载的软件。</li>
+<li>例如，在atlas200dk上安装python和openssl时，就将python和ssl分别安装到了<code>/usr/local/python3.7.5</code>和<code>/usr/local/ssl</code>下。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;sbin : Non-vital system binaries</strong><ul>
+<li>非系统正常运行所需要的系统命令，基本功能与<code>/sbin</code>差不多。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;share : Architecture-independent data</strong><ul>
+<li>主要放置只读的数据文件。</li>
+<li>例如<ul>
+<li>&#x2F;usr&#x2F;share&#x2F;man 在线帮助文件<ul>
+<li>man1: 查询终端命令，如<code>man 1 cp</code></li>
+<li>man2: 查询系统调用，如<code>man 2 open</code></li>
+<li>man3: 查询库函数，如<code>man 3 fopen</code></li>
+</ul>
+</li>
+<li>&#x2F;usr&#x2F;share&#x2F;doc 软件说明文档</li>
+<li>&#x2F;usr&#x2F;share&#x2F;zoneinfo 与时区有关的时区文件</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-3-Specific-Options"><a href="#4-3-Specific-Options" class="headerlink" title="4.3 Specific Options"></a>4.3 Specific Options</h3><ul>
+<li><strong>&#x2F;usr&#x2F;games : Games and educational binaries (optional)</strong><ul>
+<li>游戏相关。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;include : Header files included by C programs</strong><ul>
+<li>放置c&#x2F;c++程序语言的头文件和包含文件。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;libexec : Binaries run by other programs (optional)</strong><ul>
+<li>存放不被一般用户或脚本常用的执行文件或脚本。</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;lib&lt;qual&gt; : Alternate Format Libraries (optional)</strong><ul>
+<li>与<code>/lib&lt;qual&gt;</code>功能相同</li>
+</ul>
+</li>
+<li><strong>&#x2F;usr&#x2F;src : Source code (optional)</strong><ul>
+<li>存放源代码。</li>
+<li>例如linux内核源代码存放在<code>/usr/src/linux</code>下。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Chapter5-The-var-Hierarchy"><a href="#Chapter5-The-var-Hierarchy" class="headerlink" title="Chapter5. The &#x2F;var Hierarchy"></a>Chapter5. The &#x2F;var Hierarchy</h2><h3 id="5-2-Requirements"><a href="#5-2-Requirements" class="headerlink" title="5.2 Requirements"></a>5.2 Requirements</h3><ul>
+<li><strong>&#x2F;var&#x2F;cache : Application cache data</strong><ul>
+<li>存放应用缓存。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;lib : Variable state information</strong><ul>
+<li>程序本身执行的过程中，需要使用的数据文件放置的目录。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;local : Variable data for &#x2F;usr&#x2F;local</strong></li>
+<li><strong>&#x2F;var&#x2F;lock : Lock files</strong><ul>
+<li>存放锁文件相关，目前此目录已经被移动到<code>/run/lock</code>中。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;log : Log files and directories</strong><ul>
+<li>存放日志文件。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;opt : Variable data for &#x2F;opt</strong></li>
+<li><strong>&#x2F;var&#x2F;run : Data relevant to running processes</strong><ul>
+<li>此目录链接到<code>/run</code>。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;spool : Application spool data</strong><ul>
+<li>放置一些队列数据，即排队等待其他程序使用的数据。这些数据使用后通常会被删除。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;tmp : Temporary files preserved between system reboots</strong></li>
+</ul>
+<h3 id="5-3-Specific-Options"><a href="#5-3-Specific-Options" class="headerlink" title="5.3 Specific Options"></a>5.3 Specific Options</h3><ul>
+<li><strong>&#x2F;var&#x2F;account : Process accounting logs (optional)</strong></li>
+<li><strong>&#x2F;var&#x2F;crash : System crash dumps (optional)</strong></li>
+<li><strong>&#x2F;var&#x2F;grames : Variable game data (optional)</strong></li>
+<li><strong>&#x2F;var&#x2F;mail : User mailbox files (optional)</strong><ul>
+<li>电子邮箱相关目录。</li>
+</ul>
+</li>
+<li><strong>&#x2F;var&#x2F;yp : Network Information Service database files (optional)</strong></li>
+</ul>
+<p>参考文献：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://refspecs.linuxfoundation.org/fhs.shtml">Filesystem Hierarchy Standard 3.0（文件系统层次结构标准3.0）</a></li>
+<li>《鸟哥的Linux私房菜》</li>
+</ol>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
