@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>U-boot使用实验（网络启动kernel） | Hexo</title>
+  <meta name="keywords" content=" uboot , nfs , kernel ">
+  <meta name="description" content="U-boot使用实验（网络启动kernel） | Hexo">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="1 用具 I.MX6U Alpha开发板 100$\Omega$ 电阻、led灯、杜邦线  2 过程2.1 GPIO控制原理 使能GPIO时钟 如果对应管脚可以复用，需要设置该管脚，复用成GPIO mode 配置GPIO属性，如上下拉电阻、速率等 设置GPIO功能，如方向、值等  2.2 具体步骤I.MX6U Alpha开发板所用的芯片型号是，正点原子提供了芯片的参考手册，本实验中以点亮GPIO0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="I. MX6U GPIO汇编语言点灯">
+<meta property="og:url" content="http://sigmapoet.gitee.io/2023/10/21/I.%20MX6U%20GPIO%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%82%B9%E7%81%AF/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1 用具 I.MX6U Alpha开发板 100$\Omega$ 电阻、led灯、杜邦线  2 过程2.1 GPIO控制原理 使能GPIO时钟 如果对应管脚可以复用，需要设置该管脚，复用成GPIO mode 配置GPIO属性，如上下拉电阻、速率等 设置GPIO功能，如方向、值等  2.2 具体步骤I.MX6U Alpha开发板所用的芯片型号是，正点原子提供了芯片的参考手册，本实验中以点亮GPIO0">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/CCGR1.jpg">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/mux_gpio01_io01.jpg">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/pad_gpio01_io01.jpg">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/gpio_memory_map.jpg">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/202310211237828.jpg">
+<meta property="article:published_time" content="2023-10-21T02:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-21T04:38:42.332Z">
+<meta property="article:author" content="Sigma Poet">
+<meta property="article:tag" content="gpio">
+<meta property="article:tag" content="zdyz">
+<meta property="article:tag" content="汇编">
+<meta property="article:tag" content="led">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picbed.sigmapoet.com/img/CCGR1.jpg">
+
+
+<link rel="icon" href="/img/avatar.png">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.png"/>
+</a>
+<div class="author">
+    <span>Sigma Poet</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="email"
+               href="mailto:sigma_poet@126.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=1297184906&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(13)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="读书">
+            
+            读书
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="计算机大学">
+            <i class="fold iconfont icon-right"></i>
+            计算机大学
+            <small>(8)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;编译原理">
+            
+            编译原理
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;操作系统">
+            
+            操作系统
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言">
+            <i class="fold iconfont icon-right"></i>
+            计算机语言
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言&lt;---&gt;unix环境高级编程">
+            
+            unix环境高级编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;网络编程">
+            
+            网络编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="教程库">
+            <i class="fold iconfont icon-right"></i>
+            教程库
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;正点原子">
+            
+            正点原子
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+    </div>
+    <div>
+        
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="13">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>汇编</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>内存管理</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>book</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>buffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>compile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>extern</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>filesystem</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>fs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>g++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gcc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gpio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ipv4</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>kernel</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>led</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mmu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>network</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>osi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>read</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rootfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>socket</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>stdio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>sync</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>syscall</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tcp/ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tlb</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>uboot</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>udp</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>unix</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>user</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>write</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zdyz</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/I.%20MX6U%20GPIO%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%82%B9%E7%81%AF/"
+           data-tag="gpio,zdyz,汇编,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I. MX6U GPIO汇编语言点灯">I. MX6U GPIO汇编语言点灯</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/U-boot%E4%BD%BF%E7%94%A8%E5%AE%9E%E9%AA%8C%EF%BC%88%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%8F%8A%E5%85%B6%E5%AE%83%EF%BC%89/"
+           data-tag="uboot,nfs,kernel"
+           data-author="sigmapoet" >
+            <span class="post-title" title="U-boot使用实验（网络启动kernel）">U-boot使用实验（网络启动kernel）</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 网络编程 "
+           href="/2023/10/21/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"
+           data-tag="tcp/ip,udp,osi,ipv4,network"
+           data-author="sigmapoet" >
+            <span class="post-title" title="网络基础知识">网络基础知识</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 编译原理 "
+           href="/2023/10/20/C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BC%96%E8%AF%91%E5%92%8C%E9%93%BE%E6%8E%A5/"
+           data-tag="c,gcc,g++,compile"
+           data-author="sigmapoet" >
+            <span class="post-title" title="C语言程序的编译和链接">C语言程序的编译和链接</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/unix%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+           data-tag="unix,filesystem,fs,rootfs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix文件系统学习笔记">unix文件系统学习笔记</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"
+           data-tag="kernel,syscall,user"
+           data-author="sigmapoet" >
+            <span class="post-title" title="系统调用">系统调用</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81MMU%E5%92%8C%E9%A1%B5%E8%A1%A8/"
+           data-tag="mmu,内存管理,tlb"
+           data-author="sigmapoet" >
+            <span class="post-title" title="虚拟内存、页表、MMU">虚拟内存、页表、MMU</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E4%B8%87%E5%8E%86%E5%8D%81%E4%BA%94%E5%B9%B4%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《万历十五年》读后感">《万历十五年》读后感</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E6%96%AD%E8%88%8D%E7%A6%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《断舍离》读书摘记">《断舍离》读书摘记</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%20%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%81%8C%E4%B8%9A%E7%B4%A0%E5%85%BB/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="代码整洁之道 程序员的职业素养">代码整洁之道 程序员的职业素养</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/18/IO%E7%BC%93%E5%86%B2/"
+           data-tag="buffer,io,write,read,sync,stdio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I/O缓冲">I/O缓冲</span>
+            <span class="post-date" title="2023-10-18 10:00:00">2023/10/18</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 "
+           href="/2023/10/15/extern%20C%E6%B5%85%E6%9E%90/"
+           data-tag="c,extern,c++"
+           data-author="sigmapoet" >
+            <span class="post-title" title="extern “C”浅析">extern “C”浅析</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 unix环境高级编程 "
+           href="/2023/10/15/unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97/"
+           data-tag="unix,socket"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix域套接字">unix域套接字</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-U-boot使用实验（网络调试及其它）" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">U-boot使用实验（网络启动kernel）</h1>
+    
+    <div class="article-meta">
+        
+        
+        <span class="author"><a>sigmapoet</a></span>
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="教程库">教程库</a> > 
+            
+            <a  data-rel="教程库&lt;---&gt;正点原子">正点原子</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color1">uboot</a>
+            
+            <a class="color4">nfs</a>
+            
+            <a class="color2">kernel</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2023-10-21 12:46:53'>2023-10-21 10:00</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%8F%E8%BF%B0"><span class="toc-text">描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4"><span class="toc-text">步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4%E4%B8%80%EF%BC%9A%E7%BC%96%E8%AF%91%E3%80%81%E7%83%A7%E5%86%99U-boot"><span class="toc-text">步骤一：编译、烧写U-boot</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4%E4%BA%8C%EF%BC%9A%E9%85%8D%E7%BD%AENFS%EF%BC%8C%E5%B9%B6%E5%B0%86%E9%95%9C%E5%83%8F%E6%96%87%E4%BB%B6%E5%92%8C%E8%AE%BE%E5%A4%87%E6%A0%91%E6%96%87%E4%BB%B6%E6%8B%B7%E8%B4%9D%E5%88%B0DRAM%E4%B8%AD"><span class="toc-text">步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4%E4%B8%89%EF%BC%9A%E5%90%AF%E5%8A%A8linux-kernel"><span class="toc-text">步骤三：启动linux kernel</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-text">问题及解决方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8ping%E5%91%BD%E4%BB%A4%E6%8A%A5%E9%94%99data-abort"><span class="toc-text">问题一：使用ping命令报错data abort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8NFS%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6%EF%BC%8C%E6%8A%A5%E9%94%99loading-ERROR-File-lookup-fail"><span class="toc-text">问题二：使用NFS下载文件，报错loading:*** ERROR: File lookup fail</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%B8%89%EF%BC%9A%E5%90%AF%E5%8A%A8kernel%E5%8D%A1%E5%9C%A8Starting-kernel%E2%80%A6"><span class="toc-text">问题三：启动kernel卡在Starting kernel…</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-6 i,
+    .toc-level-6 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>使用U-boot命令，通过NFS将镜像文件和设备树文件从Ubuntu服务器拷贝到开发板DRAM中，然后启动linux kernel。</p>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><h3 id="步骤一：编译、烧写U-boot"><a href="#步骤一：编译、烧写U-boot" class="headerlink" title="步骤一：编译、烧写U-boot"></a>步骤一：编译、烧写U-boot</h3><p>根据正点原子提供的源码，编译u-boot。</p>
+<pre><code class="shell">make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- mx6ull_14x14_ddr512_emmc_defconfig
+make V=1 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j8
+</code></pre>
+<p>使用正点原子提供的imxdownload工具，将编译好的u-boot.bin烧写到SD卡中。</p>
+<pre><code class="shell">./imxdownload u-boot.bin /dev/sdb
+</code></pre>
+<p><strong>注意</strong>：如果烧写速度在几百KB，基本是烧写成功了。另外，要烧写到sdb（根据你自己SD卡的设备名字而定）中，而不是sdb1&#x2F;2&#x2F;3等（即不同的分区）中。</p>
+<h3 id="步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中"><a href="#步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中" class="headerlink" title="步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中"></a>步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中</h3><p>Ubuntu端的NFS配置，请点击<a target="_blank" rel="noopener" href="http://sigmapoet.com/archives/57">arm-linux开发板通过NFS（网络文件系统）快捷访问和操作Ubuntu文件系统</a>。使用u-boot命令配置板端的网络环境。</p>
+<pre><code class="shell">setenv ipaddr 192.168.1.50
+setenv ethaddr b8:ae:1d:01:00:00
+setenv gatewayip 192.168.1.1
+setenv netmask 255.255.255.0
+setenv serverip 192.168.1.55
+saveenv
+</code></pre>
+<p>配置完环境后，使用<code>ping</code>命令ping一下服务器，如果能ping到，说明网络连接正常。</p>
+<pre><code class="shell">ping 192.168.1.55
+</code></pre>
+<p><strong>注意</strong>：如果报错<code>data abort</code>，是由于内存地址对齐错误的检查功能造成的，具体的问题和解决方法请点击<a href="#point1">问题一</a>。</p>
+<p>正常ping效果见下图。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/uboot-ping通服务器.jpg">
+</div>
+
+<p>然后使用<code>nfs</code>命令将镜像文件和设备树文件下载到DRAM中（具体的设备树文件根据自己使用的LCD屏设备确定）。</p>
+<pre><code class="shell">nfs 80800000 192.168.1.55:/home/sigma-poet/work/nfs_files/zImage
+nfs 83000000 192.168.1.55:/home/sigma-poet/work/nfs_files/imx6ull-14x14-emmc-7-1024x600-c.dtb
+</code></pre>
+<p><strong>注意</strong>：如果报错：loading:*** ERROR: File lookup fail，是由于u-boot和Ubuntu的NFS版本不兼容造成的，具体的问题和解决方法请点击<a href="#point2">问题二</a>。</p>
+<p>下载成功效果见下图。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/uboot-拷贝镜像.jpg" width="70%" height="70%">
+    <br/><br/>
+    <img src="https://picbed.sigmapoet.com/img/uboot-拷贝设备树.jpg" width="70%" height="70%">
+</div>
+
+
+
+<h3 id="步骤三：启动linux-kernel"><a href="#步骤三：启动linux-kernel" class="headerlink" title="步骤三：启动linux kernel"></a>步骤三：启动linux kernel</h3><p>使用启动命令，启动linux kernel。</p>
+<pre><code class="shell">bootz 80800000 - 83000000
+</code></pre>
+<p><strong>注意</strong>：如果卡在starting kernel，具体解决方法请点击<a href="#point3">问题三</a>。</p>
+<p>linux kernel启动成功效果见下图。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/202310211245049.jpg)">
+</div>
+
+<p>至此，已经通过u-boot命令行的方式成功启动了linux kernel，后面会报VFS（虚拟文件系统的kernel panic错误，是正常的，因为没烧文件系统，但是足以证明u-boot已经引导启动了kernel）。</p>
+<h2 id="问题及解决方法"><a href="#问题及解决方法" class="headerlink" title="问题及解决方法"></a>问题及解决方法</h2><h3 id="问题一：使用ping命令报错data-abort"><a href="#问题一：使用ping命令报错data-abort" class="headerlink" title="问题一：使用ping命令报错data abort"></a><span id="point1">问题一</span>：使用ping命令报错data abort</h3><p><strong>问题原因</strong>：似乎早期arm架构不支持非对齐内存访问，在开启对齐内存访问模式后，使用对齐模式去访问非对齐地址就会报错。</p>
+<p><strong>解决方法</strong>：关闭内存地址对齐错误的检查功能。</p>
+<p>在编译u-boot的源码中，在start.S（路径为：<code>arch/arm/armv7/start.S</code>）找到以下代码，</p>
+<pre><code class="assembly">mrc p15,0,r0,c1,c0,0
+bic r0,r0,#0x00002000 @clear bits 13(--V-)
+bic r0,r0,#0x00000007 @clear bits 2:0(-CAM)
+orr r0,r0,#0x00000002 @set bit 1 (--A-) Align
+orr r0,r0,#0x00000800 @set bit 11 (Z---) BTB
+</code></pre>
+<p>修改为</p>
+<pre><code class="assembly">mrc p15,0,r0,c1,c0,0
+bic r0,r0,#0x00002000 @clear bits 13(--V-)
+bic r0,r0,#0x00000007 @clear bits 2:0(-CAM)
+orr r0,r0,#0x00000000 @set bit 1 (--A-) Align
+orr r0,r0,#0x00000800 @set bit 11 (Z---) BTB
+</code></pre>
+<h3 id="问题二：使用NFS下载文件，报错loading-ERROR-File-lookup-fail"><a href="#问题二：使用NFS下载文件，报错loading-ERROR-File-lookup-fail" class="headerlink" title="问题二：使用NFS下载文件，报错loading:*** ERROR: File lookup fail"></a><span id="point2">问题二</span>：使用NFS下载文件，报错loading:*** ERROR: File lookup fail</h3><p><strong>问题原因</strong>：u-boot中使用的NFS版本为V2版本，ubuntu中的NFS版本高，两个版本不兼容。</p>
+<p><strong>解决方法</strong>：按下图修改ubuntu端nfs-kernel-server文件（路径为<code>/etc/default/nfs-kernel-server</code>）。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/202310211246495.jpg)">
+</div>
+
+<h3 id="问题三：启动kernel卡在Starting-kernel…"><a href="#问题三：启动kernel卡在Starting-kernel…" class="headerlink" title="问题三：启动kernel卡在Starting kernel…"></a><span id="point3">问题三</span>：启动kernel卡在Starting kernel…</h3><p><strong>问题原因</strong>：u-boot编译配置问题。</p>
+<p><strong>解决方法</strong>：具体没有深究（因为暂时还不会，直接换了正点原子提供好的u-boot-14x14-ddr512-emmc.bin），加上zImage和4.3寸屏幕的设备树文件(.dts)，就可以让u-boot引导启动kernel了。最后定位到是boot_jump_linux函数中，调用kernel_entry(0, machid, r2)时，r2代表的设备树文件地址传参错误，导致无法找到正确的设备树文件，启动linux。就在要解决这个问题时，莫名奇妙的就又好了，不知道为什么。</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2021-2023 SigmaPoet
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 562px;
+    }
+    .nav.fullscreen {
+        margin-left: -562px;
+    }
+    .nav-left {
+        width: 140px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 512px;
+        }
+        .nav.fullscreen {
+            margin-left: -512px;
+        }
+        .nav-left {
+            width: 120px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 512px;
+            margin-left: -512px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
