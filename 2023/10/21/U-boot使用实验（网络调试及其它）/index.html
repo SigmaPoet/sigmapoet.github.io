@@ -534,19 +534,19 @@
         
         
         <a  class="All 读书 "
-           href="/2023/10/19/%E3%80%8A%E4%B8%87%E5%8E%86%E5%8D%81%E4%BA%94%E5%B9%B4%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F/"
+           href="/2023/10/19/%E3%80%8A%E6%96%AD%E8%88%8D%E7%A6%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
            data-tag="book"
            data-author="sigmapoet" >
-            <span class="post-title" title="《万历十五年》读后感">《万历十五年》读后感</span>
+            <span class="post-title" title="《断舍离》读书摘记">《断舍离》读书摘记</span>
             <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
         </a>
         
         
         <a  class="All 读书 "
-           href="/2023/10/19/%E3%80%8A%E6%96%AD%E8%88%8D%E7%A6%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           href="/2023/10/19/%E3%80%8A%E4%B8%87%E5%8E%86%E5%8D%81%E4%BA%94%E5%B9%B4%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F/"
            data-tag="book"
            data-author="sigmapoet" >
-            <span class="post-title" title="《断舍离》读书摘记">《断舍离》读书摘记</span>
+            <span class="post-title" title="《万历十五年》读后感">《万历十五年》读后感</span>
             <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
         </a>
         
@@ -639,7 +639,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2023-10-21 12:46:53'>2023-10-21 10:00</time>
+            Created At : <time class="date" title='Updated At: 2023-10-21 12:52:53'>2023-10-21 10:00</time>
         
     </div>
     <div class="article-meta">
@@ -687,7 +687,7 @@ make V=1 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j8
 <pre><code class="shell">./imxdownload u-boot.bin /dev/sdb
 </code></pre>
 <p><strong>注意</strong>：如果烧写速度在几百KB，基本是烧写成功了。另外，要烧写到sdb（根据你自己SD卡的设备名字而定）中，而不是sdb1&#x2F;2&#x2F;3等（即不同的分区）中。</p>
-<h3 id="步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中"><a href="#步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中" class="headerlink" title="步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中"></a>步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中</h3><p>Ubuntu端的NFS配置，请点击<a target="_blank" rel="noopener" href="http://sigmapoet.com/archives/57">arm-linux开发板通过NFS（网络文件系统）快捷访问和操作Ubuntu文件系统</a>。使用u-boot命令配置板端的网络环境。</p>
+<h3 id="步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中"><a href="#步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中" class="headerlink" title="步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中"></a>步骤二：配置NFS，并将镜像文件和设备树文件拷贝到DRAM中</h3><p>Ubuntu端的NFS配置，请CSDN搜索<strong>arm-linux开发板通过NFS（网络文件系统）快捷访问和操作Ubuntu文件系统</strong>。使用u-boot命令配置板端的网络环境。</p>
 <pre><code class="shell">setenv ipaddr 192.168.1.50
 setenv ethaddr b8:ae:1d:01:00:00
 setenv gatewayip 192.168.1.1
@@ -724,8 +724,9 @@ nfs 83000000 192.168.1.55:/home/sigma-poet/work/nfs_files/imx6ull-14x14-emmc-7-1
 <p><strong>注意</strong>：如果卡在starting kernel，具体解决方法请点击<a href="#point3">问题三</a>。</p>
 <p>linux kernel启动成功效果见下图。</p>
 <div align=center>
-    <img src="https://picbed.sigmapoet.com/img/202310211245049.jpg)">
+    <img src="https://picbed.sigmapoet.com/img/202310211245049.jpg">
 </div>
+
 
 <p>至此，已经通过u-boot命令行的方式成功启动了linux kernel，后面会报VFS（虚拟文件系统的kernel panic错误，是正常的，因为没烧文件系统，但是足以证明u-boot已经引导启动了kernel）。</p>
 <h2 id="问题及解决方法"><a href="#问题及解决方法" class="headerlink" title="问题及解决方法"></a>问题及解决方法</h2><h3 id="问题一：使用ping命令报错data-abort"><a href="#问题一：使用ping命令报错data-abort" class="headerlink" title="问题一：使用ping命令报错data abort"></a><span id="point1">问题一</span>：使用ping命令报错data abort</h3><p><strong>问题原因</strong>：似乎早期arm架构不支持非对齐内存访问，在开启对齐内存访问模式后，使用对齐模式去访问非对齐地址就会报错。</p>
@@ -747,8 +748,9 @@ orr r0,r0,#0x00000800 @set bit 11 (Z---) BTB
 <h3 id="问题二：使用NFS下载文件，报错loading-ERROR-File-lookup-fail"><a href="#问题二：使用NFS下载文件，报错loading-ERROR-File-lookup-fail" class="headerlink" title="问题二：使用NFS下载文件，报错loading:*** ERROR: File lookup fail"></a><span id="point2">问题二</span>：使用NFS下载文件，报错loading:*** ERROR: File lookup fail</h3><p><strong>问题原因</strong>：u-boot中使用的NFS版本为V2版本，ubuntu中的NFS版本高，两个版本不兼容。</p>
 <p><strong>解决方法</strong>：按下图修改ubuntu端nfs-kernel-server文件（路径为<code>/etc/default/nfs-kernel-server</code>）。</p>
 <div align=center>
-    <img src="https://picbed.sigmapoet.com/img/202310211246495.jpg)">
+    <img src="https://picbed.sigmapoet.com/img/202310211246495.jpg">
 </div>
+
 
 <h3 id="问题三：启动kernel卡在Starting-kernel…"><a href="#问题三：启动kernel卡在Starting-kernel…" class="headerlink" title="问题三：启动kernel卡在Starting kernel…"></a><span id="point3">问题三</span>：启动kernel卡在Starting kernel…</h3><p><strong>问题原因</strong>：u-boot编译配置问题。</p>
 <p><strong>解决方法</strong>：具体没有深究（因为暂时还不会，直接换了正点原子提供好的u-boot-14x14-ddr512-emmc.bin），加上zImage和4.3寸屏幕的设备树文件(.dts)，就可以让u-boot引导启动kernel了。最后定位到是boot_jump_linux函数中，调用kernel_entry(0, machid, r2)时，r2代表的设备树文件地址传参错误，导致无法找到正确的设备树文件，启动linux。就在要解决这个问题时，莫名奇妙的就又好了，不知道为什么。</p>
