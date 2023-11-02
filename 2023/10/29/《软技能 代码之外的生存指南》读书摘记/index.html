@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>《软技能 代码之外的生存指南》读书摘记 | Hexo</title>
+  <meta name="keywords" content=" book ">
+  <meta name="description" content="《软技能 代码之外的生存指南》读书摘记 | Hexo">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="任务描述后期有基于RK3588开发智能处理设备的需求，需要使用RK3588的CAN总线、2路以太网、1路PCIe3.0x4转4路电口千兆以太网。 需要使用公板SDK编译自己的u-boot、kernel、dts、rootfs等固件，刷到Firefly-ITX-3588J开发板中，进行bringup工作的前期验证，为后续bringup自己的板子奠定基础。 本篇记录一些刷写使用公板SDK编译固件的过程中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Firefly-ITX-3588J开发板bringup">
+<meta property="og:url" content="http://sigmapoet.gitee.io/2023/11/02/Firefly-ITX-3588J%E5%BC%80%E5%8F%91%E6%9D%BFbringup/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="任务描述后期有基于RK3588开发智能处理设备的需求，需要使用RK3588的CAN总线、2路以太网、1路PCIe3.0x4转4路电口千兆以太网。 需要使用公板SDK编译自己的u-boot、kernel、dts、rootfs等固件，刷到Firefly-ITX-3588J开发板中，进行bringup工作的前期验证，为后续bringup自己的板子奠定基础。 本篇记录一些刷写使用公板SDK编译固件的过程中">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/2022112501.png">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/2022112502.png">
+<meta property="article:published_time" content="2023-11-02T02:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-02T10:06:21.768Z">
+<meta property="article:author" content="Sigma Poet">
+<meta property="article:tag" content="firefly">
+<meta property="article:tag" content="rk3588">
+<meta property="article:tag" content="bringup">
+<meta property="article:tag" content="kernel">
+<meta property="article:tag" content="dts">
+<meta property="article:tag" content="rootfs">
+<meta property="article:tag" content="uboot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picbed.sigmapoet.com/img/2022112501.png">
+
+
+<link rel="icon" href="/img/avatar.png">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.png"/>
+</a>
+<div class="author">
+    <span>Sigma Poet</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="email"
+               href="mailto:sigma_poet@126.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=1297184906&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(57)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="读书">
+            
+            读书
+            <small>(24)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="计算机大学">
+            <i class="fold iconfont icon-right"></i>
+            计算机大学
+            <small>(8)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;编译原理">
+            
+            编译原理
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;操作系统">
+            
+            操作系统
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言">
+            <i class="fold iconfont icon-right"></i>
+            计算机语言
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言&lt;---&gt;unix环境高级编程">
+            
+            unix环境高级编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;网络编程">
+            
+            网络编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="问题库">
+            <i class="fold iconfont icon-right"></i>
+            问题库
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;环境问题">
+            
+            环境问题
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;连接问题">
+            
+            连接问题
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;性能问题">
+            
+            性能问题
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="教程库">
+            <i class="fold iconfont icon-right"></i>
+            教程库
+            <small>(20)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;linux">
+            
+            linux
+            <small>(8)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;rockchip">
+            
+            rockchip
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;树莓派">
+            
+            树莓派
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;正点原子">
+            
+            正点原子
+            <small>(10)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+    </div>
+    <div>
+        
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="57">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>汇编</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>火焰图</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>内存管理</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>前端</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>以太网</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>book</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>bringup</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>buffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cmake</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>compile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>coremark</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cpu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>css</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>driver</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dts</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>extern</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>filesystem</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>firefly</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>flamegraph</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>framebuffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>freetype</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>fs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>g++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gcc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gpio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>input</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>iperf</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ipv4</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>iso</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jpeg</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>js</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>kernel</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ko</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>lcd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>led</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>libjpeg</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>linux</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>make</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>makefile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mmu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>namespace</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>net</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>network</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>opencv</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>osi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>perf</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>performance</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>png</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>qt</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>raspberry</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>read</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rk3588</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rootfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>samba</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>socket</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>stdio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>sync</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>syscall</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tcp/ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>thread</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tlb</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>touchscreen</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tslib</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>uboot</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ubuntu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>udp</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>unix</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>user</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vino</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vnc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>wifi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>write</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zdyz</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zlib</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All 教程库 rockchip "
+           href="/2023/11/02/Firefly-ITX-3588J%E5%BC%80%E5%8F%91%E6%9D%BFbringup/"
+           data-tag="firefly,rk3588,bringup,kernel,dts,rootfs,uboot"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Firefly-ITX-3588J开发板bringup">Firefly-ITX-3588J开发板bringup</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/Linux%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/"
+           data-tag="performance,coremark,flamegraph,火焰图,perf"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Linux环境编程性能测试和分析工具">Linux环境编程性能测试和分析工具</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E8%BF%9B%E9%98%B6%E7%AF%87/"
+           data-tag="cmake,linux,ubuntu"
+           data-author="sigmapoet" >
+            <span class="post-title" title="cmake入门与进阶——进阶篇">cmake入门与进阶——进阶篇</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/ubuntu%E5%8F%8C%E7%BD%91%E5%8D%A1%E4%BC%98%E5%85%88%E7%BA%A7%E8%AE%BE%E7%BD%AE/"
+           data-tag="ubuntu,ip,以太网"
+           data-author="sigmapoet" >
+            <span class="post-title" title="ubuntu双网卡优先级设置">ubuntu双网卡优先级设置</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/ubuntu%E5%86%85%E7%BD%AE%E6%A1%8C%E9%9D%A2%E5%85%B1%E4%BA%AB%EF%BC%9Avino/"
+           data-tag="ubuntu,vino,vnc"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用ubuntu内置桌面共享：vino，实现远程桌面">使用ubuntu内置桌面共享：vino，实现远程桌面</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E5%85%A5%E9%97%A8%E7%AF%87/"
+           data-tag="cmake,linux,ubuntu"
+           data-author="sigmapoet" >
+            <span class="post-title" title="cmake入门与进阶——入门篇">cmake入门与进阶——入门篇</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E5%86%85%E6%A0%B8%E6%A0%91%E5%A4%96%E6%9E%84%E5%BB%BA%E6%A8%A1%E5%9D%97Makefile%E8%A7%A3%E6%9E%90/"
+           data-tag="kernel,ko,makefile,driver"
+           data-author="sigmapoet" >
+            <span class="post-title" title="内核树外构建模块Makefile">内核树外构建模块Makefile</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E4%BD%BF%E7%94%A8ubuntu%E9%95%9C%E5%83%8F%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96%E5%8C%85/"
+           data-tag="ubuntu,iso"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用ubuntu镜像离线安装基础依赖包">使用ubuntu镜像离线安装基础依赖包</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1%E8%87%AA%E7%8E%AF%E6%B5%8B%E8%AF%95/"
+           data-tag="ubuntu,iperf,net,namespace"
+           data-author="sigmapoet" >
+            <span class="post-title" title="单机多网卡自环测试">单机多网卡自环测试</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 树莓派 "
+           href="/2023/11/02/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%90%AF%E5%8A%A8wifi/"
+           data-tag="raspberry,pi,wifi"
+           data-author="sigmapoet" >
+            <span class="post-title" title="树莓派4b启动配置wifi">树莓派4b启动配置wifi</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%80%E5%8F%A5%E9%A1%B6%E4%B8%80%E4%B8%87%E5%8F%A5%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《一句顶一万句》读书感悟 &amp; 摘记">《一句顶一万句》读书感悟 &amp; 摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%89%E5%8D%81%E5%85%AD%E5%A4%A7%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《三十六大》读书摘记">《三十六大》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%AD%E5%9B%BD%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《为什么是中国》读书摘记">《为什么是中国》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B9%8C%E5%90%88%E4%B9%8B%E4%BC%97%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《乌合之众》读书摘记">《乌合之众》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%BB%8A%E6%97%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《今日简史》读书摘记">《今日简史》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E5%93%B2%E5%AD%A6%E7%9F%A5%E8%AF%86%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——哲学知识篇">《圆圈正义》——哲学知识篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%8D%97%E4%BA%AC%E5%A4%A7%E5%B1%A0%E6%9D%80%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《南京大屠杀》读书心得 &amp; 摘记">《南京大屠杀》读书心得 &amp; 摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E9%B8%A1%E6%B1%A4%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——鸡汤篇">《圆圈正义》——鸡汤篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E6%B3%95%E5%AD%A6%E7%9F%A5%E8%AF%86%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——法学知识篇">《圆圈正义》——法学知识篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E2%80%94%E2%80%94%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《未来简史》——第1章 人类的新议题：读书摘记 &amp; 心得">《未来简史》——第1章 人类的新议题：读书摘记 &amp; 心得</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%AF%9B%E6%B3%BD%E4%B8%9C%E9%80%89%E9%9B%86%E2%80%94%E2%80%94%E5%AE%9E%E8%B7%B5%E8%AE%BA%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《实践论》读书摘记&amp;读书心得">《实践论》读书摘记&amp;读书心得</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%9C%88%E4%BA%AE%E4%B8%8E%E5%85%AD%E4%BE%BF%E5%A3%AB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《月亮与六便士》读书摘记">《月亮与六便士》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94%E6%88%98%E7%95%A5%E6%80%9D%E7%BB%B4/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（三）——战略思维">《胜者思维》读书摘记（三）——战略思维</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E5%B0%86%E5%86%9B%E4%B9%8B%E9%81%93/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（一）——将军之道">《胜者思维》读书摘记（一）——将军之道</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E7%9C%8B%E8%A7%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《看见》读书摘记">《看见》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E5%8D%B1%E6%9C%BA/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（二）——危机">《胜者思维》读书摘记（二）——危机</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%BD%AF%E6%8A%80%E8%83%BD%20%E4%BB%A3%E7%A0%81%E4%B9%8B%E5%A4%96%E7%9A%84%E7%94%9F%E5%AD%98%E6%8C%87%E5%8D%97%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《软技能 代码之外的生存指南》读书摘记">《软技能 代码之外的生存指南》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E6%AF%9B%E6%B3%BD%E4%B8%9C%E9%80%89%E9%9B%86%20%E7%AC%AC%E4%B8%80%E5%8D%B7/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《毛泽东选集》第一卷 读书摘记">《毛泽东选集》第一卷 读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%B8%80%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（一）">《高效能人士的七个习惯》读书摘记（一）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%B8%89%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（三）">《高效能人士的七个习惯》读书摘记（三）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%BA%8C%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（二）">《高效能人士的七个习惯》读书摘记（二）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 问题库 环境问题 "
+           href="/2023/10/23/python%E4%BD%BF%E7%94%A8%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85%E6%97%B6%EF%BC%8Cmake%E9%99%B7%E5%85%A5%E6%AD%BB%E5%BE%AA%E7%8E%AF/"
+           data-tag="python,make"
+           data-author="sigmapoet" >
+            <span class="post-title" title="python使用源码安装时，make陷入死循环">python使用源码安装时，make陷入死循环</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 连接问题 "
+           href="/2023/10/23/samba%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/"
+           data-tag="samba"
+           data-author="sigmapoet" >
+            <span class="post-title" title="samba连接失败">samba连接失败</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 环境问题 "
+           href="/2023/10/23/ubuntu18.04%E5%AE%89%E8%A3%85opencv2.4.10%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/"
+           data-tag="ubuntu,opencv"
+           data-author="sigmapoet" >
+            <span class="post-title" title="ubuntu18.04安装opencv2.4.10问题记录">ubuntu18.04安装opencv2.4.10问题记录</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 性能问题 "
+           href="/2023/10/23/%E7%BB%91%E5%AE%9Athread%E5%88%B0CPU%E4%B8%8D%E5%90%8C%E6%A0%B8%E5%BF%83/"
+           data-tag="thread,cpu,qt"
+           data-author="sigmapoet" >
+            <span class="post-title" title="绑定thread到CPU不同核心">绑定thread到CPU不同核心</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 性能问题 "
+           href="/2023/10/23/%E8%A7%A3%E5%86%B3CSS%E5%92%8CJS%E5%8A%A0%E8%BD%BD%E6%85%A2%E5%AF%BC%E8%87%B4%E7%BD%91%E9%A1%B5%E5%8A%A0%E8%BD%BD%E9%9D%9E%E5%B8%B8%E7%BC%93%E6%85%A2/"
+           data-tag="前端,js,css"
+           data-author="sigmapoet" >
+            <span class="post-title" title="折腾解决【CSS和JS加载缓慢导致网页加载非常缓慢】问题">折腾解决【CSS和JS加载缓慢导致网页加载非常缓慢】问题</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/GPIO%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,gpio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="GPIO编程实践">GPIO编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/FrameBuffer%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,framebuffer,lcd"
+           data-author="sigmapoet" >
+            <span class="post-title" title="FrameBuffer编程实践">FrameBuffer编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/I.%20MX6U%20GPIO%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%82%B9%E7%81%AF/"
+           data-tag="zdyz,gpio,汇编,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I. MX6U GPIO汇编语言点灯">I. MX6U GPIO汇编语言点灯</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/led%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,gpio,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="led灯编程实践">led灯编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/U-boot%E4%BD%BF%E7%94%A8%E5%AE%9E%E9%AA%8C%EF%BC%88%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%8F%8A%E5%85%B6%E5%AE%83%EF%BC%89/"
+           data-tag="kernel,uboot,nfs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="U-boot使用实验（网络启动kernel）">U-boot使用实验（网络启动kernel）</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E4%BD%BF%E7%94%A8tslib%E5%BA%93/"
+           data-tag="zdyz,tslib,touchscreen"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用tslib库">使用tslib库</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BAjpeg%E5%9B%BE%E5%83%8F/"
+           data-tag="zdyz,lcd,jpeg,libjpeg"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示jpeg图像">在LCD上显示jpeg图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BApng%E5%9B%BE%E5%83%8F/"
+           data-tag="zdyz,lcd,png,zlib"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示png图像">在LCD上显示png图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BA%E5%AD%97%E7%AC%A6/"
+           data-tag="zdyz,lcd,freetype"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示字符图像">在LCD上显示字符图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 网络编程 "
+           href="/2023/10/21/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"
+           data-tag="tcp/ip,udp,osi,ipv4,network"
+           data-author="sigmapoet" >
+            <span class="post-title" title="网络基础知识">网络基础知识</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,input"
+           data-author="sigmapoet" >
+            <span class="post-title" title="输入设备编程实践">输入设备编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 编译原理 "
+           href="/2023/10/20/C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BC%96%E8%AF%91%E5%92%8C%E9%93%BE%E6%8E%A5/"
+           data-tag="c,gcc,g++,compile"
+           data-author="sigmapoet" >
+            <span class="post-title" title="C语言程序的编译和链接">C语言程序的编译和链接</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/unix%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+           data-tag="rootfs,unix,filesystem,fs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix文件系统学习笔记">unix文件系统学习笔记</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"
+           data-tag="kernel,syscall,user"
+           data-author="sigmapoet" >
+            <span class="post-title" title="系统调用">系统调用</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81MMU%E5%92%8C%E9%A1%B5%E8%A1%A8/"
+           data-tag="mmu,内存管理,tlb"
+           data-author="sigmapoet" >
+            <span class="post-title" title="虚拟内存、页表、MMU">虚拟内存、页表、MMU</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E4%B8%87%E5%8E%86%E5%8D%81%E4%BA%94%E5%B9%B4%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《万历十五年》读后感">《万历十五年》读后感</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E6%96%AD%E8%88%8D%E7%A6%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《断舍离》读书摘记">《断舍离》读书摘记</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%20%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%81%8C%E4%B8%9A%E7%B4%A0%E5%85%BB/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="代码整洁之道 程序员的职业素养">代码整洁之道 程序员的职业素养</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/18/IO%E7%BC%93%E5%86%B2/"
+           data-tag="buffer,io,write,read,sync,stdio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I/O缓冲">I/O缓冲</span>
+            <span class="post-date" title="2023-10-18 10:00:00">2023/10/18</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 "
+           href="/2023/10/15/extern%20C%E6%B5%85%E6%9E%90/"
+           data-tag="c,extern,c++"
+           data-author="sigmapoet" >
+            <span class="post-title" title="extern “C”浅析">extern “C”浅析</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 unix环境高级编程 "
+           href="/2023/10/15/unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97/"
+           data-tag="unix,socket"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix域套接字">unix域套接字</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-《软技能 代码之外的生存指南》读书摘记" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">《软技能 代码之外的生存指南》读书摘记</h1>
+    
+    <div class="article-meta">
+        
+        
+        <span class="author"><a>sigmapoet</a></span>
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="读书">读书</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">book</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2023-11-02 18:16:58'>2023-10-29 10:00</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC1%E7%AB%A0-%E4%B8%BA%E4%BD%95%E8%BF%99%E6%9C%AC%E4%B9%A6%E4%B8%8E%E4%BD%A0%E5%85%88%E5%89%8D%E8%AF%BB%E8%BF%87%E7%9A%84%E4%BB%BB%E4%BD%95%E4%B9%A6%E7%B1%8D%E9%83%BD%E8%BF%A5%E7%84%B6%E4%B8%8D%E5%90%8C"><span class="toc-text">第1章 为何这本书与你先前读过的任何书籍都迥然不同</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC2%E7%AB%A0-%E4%BB%8E%E9%9D%9E%E5%90%8C%E5%87%A1%E5%93%8D%E5%BC%80%E5%A7%8B%EF%BC%9A%E7%BB%9D%E4%B8%8D%E8%A6%81%E5%81%9A%E4%BB%96%E4%BA%BA%E9%83%BD%E5%9C%A8%E5%81%9A%E7%9A%84%E4%BA%8B"><span class="toc-text">第2章 从非同凡响开始：绝不要做他人都在做的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC3%E7%AB%A0-%E6%80%9D%E8%80%83%E6%9C%AA%E6%9D%A5%EF%BC%9A%E4%BD%A0%E7%9A%84%E7%9B%AE%E6%A0%87%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-text">第3章 思考未来：你的目标是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC5%E7%AB%A0-%E7%A0%B4%E8%A7%A3%E9%9D%A2%E8%AF%95%E4%B9%8B%E9%81%93"><span class="toc-text">第5章 破解面试之道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC7%E7%AB%A0-%E4%BD%A0%E6%98%AF%E5%93%AA%E7%B1%BB%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E4%BA%BA%E5%91%98"><span class="toc-text">第7章 你是哪类软件开发人员</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC9%E7%AB%A0-%E6%94%80%E7%99%BB%E6%99%8B%E5%8D%87%E9%98%B6%E6%A2%AF"><span class="toc-text">第9章 攀登晋升阶梯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC10%E7%AB%A0-%E6%88%90%E4%B8%BA%E4%B8%93%E4%B8%9A%E4%BA%BA%E5%A3%AB"><span class="toc-text">第10章 成为专业人士</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC13%E7%AB%A0-%E5%88%9B%E5%BB%BA%E4%BD%A0%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%BA%A7%E5%93%81"><span class="toc-text">第13章 创建你的第一个产品</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC15%E7%AB%A0-%E8%BF%9C%E7%A8%8B%E5%B7%A5%E4%BD%9C%E7%9A%84%E7%94%9F%E5%AD%98%E7%AD%96%E7%95%A5"><span class="toc-text">第15章 远程工作的生存策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC18%E7%AB%A0-%E8%AF%B7%E5%8B%BF%E9%99%B7%E5%85%A5%E5%AF%B9%E6%8A%80%E6%9C%AF%E7%9A%84%E7%8B%82%E7%83%AD%E4%B9%8B%E4%B8%AD"><span class="toc-text">第18章 请勿陷入对技术的狂热之中</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC21%E7%AB%A0-%E5%88%9B%E5%BB%BA%E5%A4%A7%E8%8E%B7%E6%88%90%E5%8A%9F%E7%9A%84%E5%8D%9A%E5%AE%A2"><span class="toc-text">第21章 创建大获成功的博客</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC22%E7%AB%A0-%E4%BD%A0%E7%9A%84%E4%B8%BB%E8%A6%81%E7%9B%AE%E6%A0%87%EF%BC%9A%E4%B8%BA%E4%BB%96%E4%BA%BA%E5%A2%9E%E5%8A%A0%E4%BB%B7%E5%80%BC"><span class="toc-text">第22章 你的主要目标：为他人增加价值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC25%E7%AB%A0-%E8%91%97%E4%B9%A6%E7%AB%8B%E8%AF%B4%EF%BC%8C%E5%90%B8%E5%BC%95%E8%BF%BD%E9%9A%8F%E8%80%85"><span class="toc-text">第25章 著书立说，吸引追随者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC27%E7%AB%A0-%E5%AD%A6%E4%B9%A0%E6%80%8E%E6%A0%B7%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%A6%82%E4%BD%95%E8%87%AA%E6%88%91%E6%95%99%E8%82%B2"><span class="toc-text">第27章 学习怎样学习：如何自我教育</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC36%E7%AB%A0-%E4%B8%80%E5%88%87%E5%A7%8B%E4%BA%8E%E4%B8%93%E6%B3%A8"><span class="toc-text">第36章 一切始于专注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC44%E7%AB%A0-%E5%BD%A2%E6%88%90%E6%83%AF%E4%BE%8B%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7"><span class="toc-text">第44章 形成惯例的重要性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC47%E7%AB%A0-%E5%8A%AA%E5%8A%9B%E5%B7%A5%E4%BD%9C%E7%9A%84%E4%BB%B7%E5%80%BC%EF%BC%8C%E4%BB%A5%E5%8F%8A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%80%BB%E6%98%AF%E9%80%83%E9%81%BF%E5%8A%AA%E5%8A%9B%E5%B7%A5%E4%BD%9C"><span class="toc-text">第47章 努力工作的价值，以及为什么你总是逃避努力工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC48%E7%AB%A0-%E4%BB%BB%E4%BD%95%E8%A1%8C%E5%8A%A8%E9%83%BD%E6%AF%94%E4%B8%8D%E9%87%87%E5%8F%96%E8%A1%8C%E5%8A%A8%E5%A5%BD"><span class="toc-text">第48章 任何行动都比不采取行动好</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC49%E7%AB%A0-%E6%80%8E%E6%A0%B7%E6%94%AF%E9%85%8D%E4%BD%A0%E7%9A%84%E8%96%AA%E6%B0%B4"><span class="toc-text">第49章 怎样支配你的薪水</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC66%E7%AB%A0-%E6%8B%A5%E6%9C%89%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BF%83%E6%80%81%EF%BC%9A%E9%87%8D%E6%96%B0%E5%90%AF%E5%8A%A8"><span class="toc-text">第66章 拥有正确的心态：重新启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC67%E7%AB%A0-%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%A7%AF%E6%9E%81%E7%9A%84%E8%87%AA%E6%88%91%E5%BD%A2%E8%B1%A1%E2%80%94%E2%80%94%E8%A7%84%E5%88%92%E4%BD%A0%E7%9A%84%E5%A4%A7%E8%84%91"><span class="toc-text">第67章 构建一个积极的自我形象——规划你的大脑</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-6 i,
+    .toc-level-6 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="第1章-为何这本书与你先前读过的任何书籍都迥然不同"><a href="#第1章-为何这本书与你先前读过的任何书籍都迥然不同" class="headerlink" title="第1章 为何这本书与你先前读过的任何书籍都迥然不同"></a>第1章 为何这本书与你先前读过的任何书籍都迥然不同</h2><ul>
+<li><p>当我说到“优秀的软件开发人员”时，我并不是说要精于编码之道，善于解决缺陷，通晓单元测试。相反，我所说的“优秀的软件开发人员”，是那些能够把控自己的职业生涯、达成目标、享受生活的人。</p>
+</li>
+<li><p>事业、思想、身体和精神四个方面</p>
+</li>
+<li><p>掌握自学能力能够让你做想做的事情。遗憾的是，在我们成长过程中，我们被迫接受的大多数教育体系是支离破碎的，因为它们都依赖于一个错误的前提：你必须要有老师去教，学习只在一个方向上流动。</p>
+</li>
+</ul>
+<h2 id="第2章-从非同凡响开始：绝不要做他人都在做的事"><a href="#第2章-从非同凡响开始：绝不要做他人都在做的事" class="headerlink" title="第2章 从非同凡响开始：绝不要做他人都在做的事"></a>第2章 从非同凡响开始：绝不要做他人都在做的事</h2><ul>
+<li><p>你所能犯的最大错误就是相信自己是在为别人工作。这样一来你对工作的安全感已然尽失。职业发展的驱动力一定是来自个体本身。记住：工作是属于公司的，而职业生涯却是属于你自己的。</p>
+</li>
+<li><p>当你为了谋生一头扎进写代码的世界时，其实你和中世纪小镇上开铁匠铺的铁匠没什么差别。</p>
+</li>
+<li><p>如果你已经习惯于领取一份固定的薪酬（注意，你的工资还真不是取决于你的表现），这会很容易导致你产生另一个心态——你只是在为某家公司打工。</p>
+<blockquote>
+<p>上述告诫我们，要克服<strong>打工心态</strong>。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第3章-思考未来：你的目标是什么"><a href="#第3章-思考未来：你的目标是什么" class="headerlink" title="第3章 思考未来：你的目标是什么"></a>第3章 思考未来：你的目标是什么</h2><ul>
+<li><p>大多数软件开发人员都害怕为自己的职业生涯设定一个长远的蓝图。</p>
+<blockquote>
+<p>“害怕”是许多人停滞的理由和心态，所以要告诉自己敢于开始，敢于进步，敢于胜利，重点是敢。</p>
+</blockquote>
+</li>
+<li><p>没有明确的方向，你走的每一步都是徒劳的。</p>
+</li>
+<li><p>不要随心所欲地生活，不要随遇而安地行走在职业生涯的漫漫长路上</p>
+</li>
+<li><p>学会与他人打交道</p>
+<ul>
+<li>我们常常容易犯的一项错误就是，轻率地否决同事的想法，以便于可以提出自己的想法。然而随着你作出这样的错误判断，你往往会发现他们对你的想法充耳不闻，仅仅因为你让他们感觉自己是无足轻重的。 </li>
+<li>作为软件开发人员，我们有时候倾向于认为所有人都是从逻辑角度来思考问题的，这很容易让你落入陷阱，错误地认为严谨的推理足以使他人接受你的思维方式。 </li>
+<li>在小事情上，任何放弃立场或承认错误的机会对你而言可能没什么大不了的，但对他人却可能是举足轻重的，这么做不仅能为你赢得不可估量的尊重，也能为你的未来积蓄财富，形势逆转时即可兑现使用。</li>
+</ul>
+</li>
+</ul>
+<h2 id="第5章-破解面试之道"><a href="#第5章-破解面试之道" class="headerlink" title="第5章 破解面试之道"></a>第5章 破解面试之道</h2><ul>
+<li><p>关键点在于：与主流观念相反，大多数面试官决定雇用某个人其实是基于各种各样的非技术因素。</p>
+<blockquote>
+<p>技术更新换代太快，人不能以装了多少技术为能力标准，而是以自己<strong>长期可迁移的能力</strong>为标准，当然前提是技术要过硬 </p>
+</blockquote>
+</li>
+<li><p>你应该做的第一件事是确保自己仍旧保持技术能力。如果你力所不及，那么世界上所有的面试技巧都不能帮助你找到工作。确保自己一直阅读技术书籍和博客文章，并会花些时间提升自己的技能。</p>
+</li>
+<li><p>创业者等同于职业赌徒。作为创业者几乎没有稳定可言，不过一旦你真的成功了，那可真的就 是大获全胜</p>
+</li>
+</ul>
+<h2 id="第7章-你是哪类软件开发人员"><a href="#第7章-你是哪类软件开发人员" class="headerlink" title="第7章 你是哪类软件开发人员"></a>第7章 你是哪类软件开发人员</h2><ul>
+<li><p>一门编程语言并不能让我了解你是哪类软件开发人员，也不能告诉我你真正能做什么。它只是让我知道你在工作中使用哪一种工具。 </p>
+</li>
+<li><p>只有少数人才想雇一个“通才式”的律师。大多数潜在客户都倾向于聘请“专才”。 </p>
+<blockquote>
+<p>要有当家手艺，在一个方向上精通。</p>
+</blockquote>
+</li>
+<li><p>记住，你只需要一份工作。</p>
+<blockquote>
+<p>你只需 1份工作，500个工作机会和 200个工作机会没有本质区别。</p>
+</blockquote>
+</li>
+<li><p>专攻嵌入式系统开发，与硬件设备紧密相关，写出来的代码运行在某个设备内部的计算机上。嵌入式系统程序员要解决的问题与 Web开发人员要处理的截然不同。 </p>
+</li>
+<li><p>学富五车，或者灵活变通并同时仍有所专长让自己卓尔不群。如果你非要二选一，那先从专业化开始，再拓展分支。</p>
+<blockquote>
+<p>做学问的博和渊的顺序：先博再渊，有个渊之后再此基础上再博</p>
+</blockquote>
+</li>
+<li><p>公司规模</p>
+<ul>
+<li>在中等规模的公司里，缓慢而稳健的做事风格通常能占得先机。</li>
+<li>如果喜欢流程和结构化，那么你可能会很享受为大公司中工作的乐趣。 </li>
+<li>为大公司工作的一个显而易见的事情就是成长机会。</li>
+</ul>
+</li>
+</ul>
+<h2 id="第9章-攀登晋升阶梯"><a href="#第9章-攀登晋升阶梯" class="headerlink" title="第9章 攀登晋升阶梯"></a>第9章 攀登晋升阶梯</h2><ul>
+<li><p>承担责任</p>
+<ul>
+<li>在任何公司里能让你脱颖而出的最重要法宝就是承担更多的责任。</li>
+<li>金钱总是追随着责任。</li>
+<li>另一种间接承担责任的方式是成为团队中其他人的导师，自愿帮助新人加速成长，为任何有需要的人提供帮助。</li>
+</ul>
+</li>
+<li><p>每当我开始新工作时，我所做的第一件事就是记日志，记录我每天都把时间花在哪儿了，完成了哪些工作。</p>
+</li>
+<li><p>发表意见——只要在会议上就这么做，或者只要你能得到的机会就这么做。</p>
+</li>
+<li><p>另外，不要只学软件开发。如果你把目标设定为更高级别的岗位甚至是行政岗位，你还需要学习领导力、管理和商科的相关知识。</p>
+</li>
+</ul>
+<h2 id="第10章-成为专业人士"><a href="#第10章-成为专业人士" class="headerlink" title="第10章 成为专业人士"></a>第10章 成为专业人士</h2><ul>
+<li><p>专业人士会严肃对待自己的责任和事业，愿意作出艰难的选择去做自己认为是正确的事情——往往还要自己承担代价。</p>
+<blockquote>
+<p>专业人士会严肃对待自己的责任和事业，因为这是专业人士价值的体现，自己不可亵渎。</p>
+</blockquote>
+</li>
+<li><p>有位开发人员很特别，他总是提前写好要说的内容。每天在Scrum会议之前，他都会准备好自己的发言，而不是像我们大多数人那样开会时随口说。这是专业开发人员要养成的习惯。</p>
+</li>
+<li><p>你做的每一件事情就是你所做的一切。</p>
+</li>
+<li><p>为自己工作</p>
+<ul>
+<li>为自己工作的麻烦在于，没到正式辞职的那一刻，你永远不知道为自己工作是多大的工作量。</li>
+<li>虽然你为自己工作的真实动机可能就是因为你热爱自己正在做的事情，但是不要指望热情可以持续很久。随着时间的流逝，热情往往会变得捉摸不定乃至于消失殆尽。</li>
+</ul>
+</li>
+<li><p>训练自己提前处理更高强度的工作负荷。</p>
+<blockquote>
+<p>身体健康非常重要。</p>
+</blockquote>
+</li>
+<li><p>追踪每天的工作时间，了解当前你是如何度过每一天的。找出自己每天真正刻苦、高效工作的时间到底有多少，结果可能会让你大吃一惊。</p>
+<blockquote>
+<p>这是真的，而且往往是看到自己的假努力，当我按照作者的方法去记录自己每天的工作时间，不对自己撒谎，我发现自己每天并没有工作到 8小时。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第13章-创建你的第一个产品"><a href="#第13章-创建你的第一个产品" class="headerlink" title="第13章 创建你的第一个产品"></a>第13章 创建你的第一个产品</h2><ul>
+<li><p>产品的诞生要从客户的需求出发。</p>
+</li>
+<li><p>而许多开发人员是反着来的。他们在尚未有受众的时候就创建产品，然后再四处推销，努力寻找受众。当你以这样的方式做事情时，你要冒很大的风险，因为执果索因往往更加困难。</p>
+</li>
+<li><p>不过大量的创业技能最终还要通过尝试和失败获得。</p>
+<blockquote>
+<p>把创业技能，扩展到技能，也是非常正确。</p>
+</blockquote>
+</li>
+<li><p>创业的典型周期</p>
+<ul>
+<li>多数创业公司的创始人都有所谓的退出策略。典型的退出策略就是说，当公司成长到一定规模的时候希望公司被人收购，这样，创始人和投资者都可以获得丰厚的回报，公司未来发展所要面临的风险可以在很大程度上得到规避。</li>
+<li>还有，被收购并非获得高额回报的唯一途径。另一个常见的退出策略是上市。当公司上市时，向公众出售公司的股权。出售股票也可以让创始人和投资者获得巨额回报。</li>
+</ul>
+</li>
+</ul>
+<h2 id="第15章-远程工作的生存策略"><a href="#第15章-远程工作的生存策略" class="headerlink" title="第15章 远程工作的生存策略"></a>第15章 远程工作的生存策略</h2><ul>
+<li><p>许多刚刚开始在家办公的人都觉得他们可以在零散的时间工作并且在他们可以工作的时候把事情做完。</p>
+</li>
+<li><p>总有新的东西令你分心，或者你已经精疲力竭，不想再坐到电脑前了。</p>
+</li>
+<li><p>专注、严肃地对待自己的工作。</p>
+<blockquote>
+<p>当你有想在零散时间内完成工作的想法时，证明你已经不严肃对待这个事情了。</p>
+</blockquote>
+</li>
+<li><p>如果可以，你培养一些常规。当激情不再的时候，习惯可以帮到你。</p>
+</li>
+<li><p>事实证明，一旦我们专心致志地工作一段时间，我们就会沉浸其中，也有动力继续。我把这称为冲量效应。</p>
+</li>
+<li><p>大多数在家办公的软件开发人员并没有意识到，长期缺乏社交会使自己变得孤独。毕竟不管怎么说，作为一个群体，我们过的是一种隐居式的生活。请相信我，如果不能在一年左右的时间里找到社交生活，你一定会感到自己要疯掉了。</p>
+</li>
+</ul>
+<h2 id="第18章-请勿陷入对技术的狂热之中"><a href="#第18章-请勿陷入对技术的狂热之中" class="headerlink" title="第18章 请勿陷入对技术的狂热之中"></a>第18章 请勿陷入对技术的狂热之中</h2><ul>
+<li><p>对技术虔诚的一大问题是，我们中的大多数崇拜某项特定的技术，只是因为自己熟悉这种技术。</p>
+</li>
+<li><p>使用自己一度厌恶的技术工作，让我从不同的视角审视所有的技术。 </p>
+</li>
+<li><p>努力尝试新东西之后再做评价。</p>
+</li>
+</ul>
+<h2 id="第21章-创建大获成功的博客"><a href="#第21章-创建大获成功的博客" class="headerlink" title="第21章 创建大获成功的博客"></a>第21章 创建大获成功的博客</h2><ul>
+<li><p>有一个好处是你无法轻易抹杀的——提高你的沟通技巧。<strong>组织自己的思想，并将其转化为文字，是一项颇具难度却也极具价值的技能。定期写作能帮助你打磨此技能，有了很好的沟通能力会让你在生活的诸多领域受益。</strong>此外，如果你能约束自己定期更新博客，你也就在持续刷新自己的技能，保证自己处于自己所在专业领域的前沿。</p>
+<blockquote>
+<p>多读书还是非常有用的，这个博客的诞生，完全得益于这段话。</p>
+</blockquote>
+</li>
+<li><p>打造成功博客的最大秘诀有且仅有一个——持之以恒。</p>
+</li>
+</ul>
+<h2 id="第22章-你的主要目标：为他人增加价值"><a href="#第22章-你的主要目标：为他人增加价值" class="headerlink" title="第22章 你的主要目标：为他人增加价值"></a>第22章 你的主要目标：为他人增加价值</h2><ul>
+<li><p>不要努力成为一个成功的人，而要努力成为一个有价值的人。——阿尔伯特·爱因斯坦</p>
+</li>
+<li><p>如果你表达的和你传递的信息不能帮到其他人，那么每个人都将会无视你。</p>
+</li>
+<li><p>虽然免费做这些事情看起来是在浪费时间，但是你要把它视为对未来的一项投资。</p>
+</li>
+<li><p>总是帮助他人解决问题的人，在解决他们自己的问题的时候会是更加轻松自如，而当他们真遇到障碍的时候，总是会有好多人伸出援手。</p>
+</li>
+<li><p>你无需把自己包装成为专家，只是热心希望通过分享自己所学而对他人有所帮助。（事实上，你会发现，你应该经常采用这种方法。太多人希望被包装成为“专家”，从此不再真诚谦逊。而作为一个脚踏实地、有缺点和弱点的真实的人，花更长时间与公众建立信任，也会让你看起来不那么古怪。）</p>
+</li>
+</ul>
+<h2 id="第25章-著书立说，吸引追随者"><a href="#第25章-著书立说，吸引追随者" class="headerlink" title="第25章 著书立说，吸引追随者"></a>第25章 著书立说，吸引追随者</h2><ul>
+<li><p>大多数人都认为，如果某个人就某一特定主题写过书或者发表过文章，那么他们就可能是这方面的专家。</p>
+</li>
+<li><p>读完一本书通常需要 10～15小时。你很难再找到别的媒介，能让人投入这么长的时间去倾听你的信息。</p>
+</li>
+<li><p>首先，如果你看起来像个傻瓜，那最糟糕的情形会是什么？你不会因为让自己出丑而受到身体上的伤害。无论你在讲台上演讲得多糟糕，也没有人真的在乎。诚然，站在讲台上抖抖索索、汗如雨下可能会让你看起来很可笑，而当这一切都结束的时候，没人会记住这些。</p>
+</li>
+<li><p>你不可能专注做某件事而毫无长进，你只要坚持足够长的时间就会有收获。你的生存之道就是不必太在意。别害怕被人看作傻瓜。</p>
+</li>
+<li><p>在我的职业生涯中，我一共错失了 9000多次投篮，输掉了近 300场比赛。我本来有 26次绝杀的机会却投球不进。我失败了一次又一次。这就是我能够成功的原因。 ——迈克尔·乔丹</p>
+</li>
+</ul>
+<h2 id="第27章-学习怎样学习：如何自我教育"><a href="#第27章-学习怎样学习：如何自我教育" class="headerlink" title="第27章 学习怎样学习：如何自我教育"></a>第27章 学习怎样学习：如何自我教育</h2><ul>
+<li><p>教育体系的设计初衷是针对群体而非个人。</p>
+</li>
+<li><p>一旦你已经实践过，并积累了各式各样的问题，立刻回到书本当中。当你回去重读这些参考资料的时候，你有强烈的冲动去消化吸收其中的内容。因为你已经积攒了很多想要找到答案的问题，你对哪些内容更重要早已了然于胸。</p>
+</li>
+<li><p>定义目标</p>
+<ul>
+<li>为了学习该主题下的不同子主题，你可能会扩张你的学习范围而不够聚焦，但是请务必抵制住这个诱惑，尽可能地保持专注。 </li>
+<li>你的学习范围务必大小适当，既能符合你的学习理由，又能符合你的时间限制。</li>
+</ul>
+</li>
+<li><p>你要专注于掌握自己所需的、能在下一步动手操作的最小量的知识。</p>
+</li>
+<li><p>在你将自己所学介绍给他人时，这也是查缺补漏的好办法。</p>
+</li>
+<li><p>学习是暂时的，而理解是永久性的。 </p>
+</li>
+<li><p>我发现最好的教学方式就是以谦虚的视角来观察问题，以权威的口吻去诠释问题。我的意思是说，当你教别人的时候，无需让自己表现得比学生更智慧、更博学，但要充满信心，坚信自己所说的一切。<strong>没人愿意跟一个对自己讲的内容毫无底气的人学习，也没有人愿意在学习的过程中被人看作是愚不可及的。</strong></p>
+</li>
+<li><p>要把这一切做到恰到好处还需要一些练习，因为很容易从一个极端走向另一个极端。你要明白，你教的目的是为了帮助别人，而不是为了证明自己的优越性或者寻求认可。</p>
+</li>
+<li><p>消除短板</p>
+<ul>
+<li>知识短板会阻碍你进步。准确识别它们的最佳方式之一就是看看自己在哪些工作上花费了大量的时间，或者一直进行重复性劳动。</li>
+<li>另一种识别知识短板的方法就是，时刻都要试图了解自己不理解或不清楚的事物。</li>
+</ul>
+</li>
+</ul>
+<h2 id="第36章-一切始于专注"><a href="#第36章-一切始于专注" class="headerlink" title="第36章 一切始于专注"></a>第36章 一切始于专注</h2><ul>
+<li><p>现如今，生产效率高并不能保证你是高效的。产量多只表明生产效率高，只有完成正确的工作才会成为高效的人。</p>
+</li>
+<li><p>要进入专注模式，必须要克服将自己的思绪集中于单一任务时的那种痛感。除非你完全享受完成这项任务，否则这种痛感一开始会很强烈。但是，这正是关键所在。你必须要意识到，这种痛苦和不适只是暂时的，不会持续很久。</p>
+</li>
+<li><p>在开始一项任务之前，确保你已经做好一切可以让自己免受干扰的措施，不管是内部干扰还是外部干扰。</p>
+<blockquote>
+<p>平静的心情，干净的桌面，整齐的文档。</p>
+</blockquote>
+</li>
+<li><p>在长时间努力工作之后，休息是必需的。</p>
+</li>
+<li><p>有一个大问题一直困扰着我：我总为自己没有做更多的事情而感到内疚。这与我一天完成多少工作无关，就好像我永远不能放松似的。我总觉得自己应该在做事，以至于坐下来玩游戏（我最喜欢的消遣之一）时我都无法享受其中，因为我觉得自己在浪费时间，我本应该做更多的工作。也许你也有同感。</p>
+<blockquote>
+<p>这个问题的根源在于，你无法准确地评估每天到底自己完成了多少任务，也没有为自己每天到底要完成多少任务设定明确的目标。</p>
+</blockquote>
+</li>
+<li><p>如果你努力工作一整天，就会感觉很好；如果在这一天中你工作松懈却又完成了列表中的所有任务，那只不过是因为任务比预期的简单而已，你还真不应该为此而沾沾自喜。</p>
+</li>
+<li><p>每人每天能够专注地、富有成效地工作的时间是有上限的。</p>
+<blockquote>
+<p>长期高压自律，身体健康和心理健康可能都会出问题。</p>
+</blockquote>
+</li>
+<li><p>定额工作法成功的秘密可以追溯到“龟兔赛跑”的故事。<strong>以缓慢但稳定的节奏工作，要优于快速但缺乏持久和坚持的工作方式。</strong></p>
+</li>
+<li><p>定额工作法还可以帮你克服意志力薄弱的问题，通过预先设定好的必须要遵循的过程，消除需要做出决策的部分。因为已经预先承诺在规定时间段内完成同一任务很多次，所以就不需要再判断要不要做某事——你知道必须要做。每一天，任何需要做决策的时刻，你都不得不被迫动用自己仅存的有限的意志力。以定额的形式将决策转变为命令，你无需再做决策，也就避免了意志力耗尽的问题。 </p>
+</li>
+<li><p>我们的大脑不能同时做两项脑力劳动。</p>
+</li>
+<li><p>你可以只在午餐时段或者晚上查看 Facebook，而不用不停地查看 Facebook。相信我，即使这样你也不会错过任何有用的东西。</p>
+<blockquote>
+<p>相反，可以减少很多无用的东西。</p>
+</blockquote>
+</li>
+<li><p>不想让开会浪费自己的时间，最好的办法很简单，就是不去开会。我知道这听起来有点儿偏激，但是我发现，在很多会议中，我只是个可有可无的听众，或者根本不需要我参加。</p>
+</li>
+</ul>
+<h2 id="第44章-形成惯例的重要性"><a href="#第44章-形成惯例的重要性" class="headerlink" title="第44章 形成惯例的重要性"></a>第44章 形成惯例的重要性</h2><ul>
+<li>生产力的真正秘诀在于：长期坚持做一些小事。</li>
+</ul>
+<h2 id="第47章-努力工作的价值，以及为什么你总是逃避努力工作"><a href="#第47章-努力工作的价值，以及为什么你总是逃避努力工作" class="headerlink" title="第47章 努力工作的价值，以及为什么你总是逃避努力工作"></a>第47章 努力工作的价值，以及为什么你总是逃避努力工作</h2><ul>
+<li><p>每个人，包括我自己在内，一生中都在寻找捷径——不用努力工作就能获得成功的方法。我们都希望能找到一些不用实际工作就能享受努力工作的成果的方法。 </p>
+<p>然而，现实的情况是，一切有价值的东西无一不是努力工作的结果。</p>
+</li>
+<li><p>如今，我仿佛总是听到有人宣扬“努力地工作不如聪明地工作”的理念。尽管我赞成在工作时要尽量聪明，但是我并不认同聪明地工作能够取代努力地工作。每个向你承诺无须努力就有巨大回报的人，要么试图向你兜售东西，要么就是已经忘了自己多么努力才到达了今天的位置。</p>
+</li>
+</ul>
+<h2 id="第48章-任何行动都比不采取行动好"><a href="#第48章-任何行动都比不采取行动好" class="headerlink" title="第48章 任何行动都比不采取行动好"></a>第48章 任何行动都比不采取行动好</h2><ul>
+<li><p>但是，为什么还有那么多人选择不采取行动呢？ </p>
+<p>我知道，对我来说原因很简单——恐惧。我斗胆猜测你的原因也一样。恐惧出错，恐惧把事情搞砸了，恐惧后果不可估量或失败，恐惧改变，恐惧做不一样的事情。</p>
+</li>
+<li><p>很多大学生认为，选择专业和选择职业都是非常重要的决定。尽管这一决定可能很重要，但也不会比其他选择更重要，有多少大学生毕业的时候只有华而不实的学位或者是泛泛而谈的专业正是因为他们没有做到当断则断呢？举棋不定、优柔寡断让他们丧失了采取行动的机会。</p>
+</li>
+</ul>
+<h2 id="第49章-怎样支配你的薪水"><a href="#第49章-怎样支配你的薪水" class="headerlink" title="第49章 怎样支配你的薪水"></a>第49章 怎样支配你的薪水</h2><ul>
+<li><p>事实上，你在职业生涯中做出的许多关键决策很大程度上是以财务状况为基础的。</p>
+</li>
+<li><p>先出价者输。</p>
+</li>
+<li><p>真正获得财务成功的唯一方法就是用钱生钱。</p>
+</li>
+<li><p>相反，我把退休定义为“自由”，具体而言，即财务自由—— 一种不会囿于财务状况被迫用自己别无选择的方式将自己的时间花费在不合心意的事情上的能力。</p>
+</li>
+</ul>
+<h2 id="第66章-拥有正确的心态：重新启动"><a href="#第66章-拥有正确的心态：重新启动" class="headerlink" title="第66章 拥有正确的心态：重新启动"></a>第66章 拥有正确的心态：重新启动</h2><ul>
+<li>积极思考与现实主义是不矛盾的。事实上，积极思考在应用层面上是现实主义的最终体现，因为它是一种信念，这种信念让你有力量改变现实，让你确信你不是环境的受害者。</li>
+<li>积极思考问题的根源是这样一种信念——你比你所处的环境更伟大。</li>
+</ul>
+<h2 id="第67章-构建一个积极的自我形象——规划你的大脑"><a href="#第67章-构建一个积极的自我形象——规划你的大脑" class="headerlink" title="第67章 构建一个积极的自我形象——规划你的大脑"></a>第67章 构建一个积极的自我形象——规划你的大脑</h2><ul>
+<li><p>自我形象是在甩掉别人对你的看法，摆脱所有用来自我安慰的谎言和欺骗以后，你看到的自己的样子。</p>
+</li>
+<li><p>这种自我形象是很强大的，因为你的大脑往往不允许你做任何事情以违反它的自我评估。这种人为的局限性很难克服，只是你可能甚至都没有意识到它们的存在。</p>
+</li>
+<li><p>自我形象是很难改变的。</p>
+</li>
+<li><p>这就好像我们得了某种病，这种病让我们把自己的弱点和局限性当作了自己重要的一部分。问一个急脾气的人他是否愿意改变脾气，他很有可能说“不”。因为对于他来说这无异于你在问他是否愿意放弃一只手臂或者一条腿，因为他深信急脾气是他自己本质的一部分，改掉急脾气相当于是他对自己的最高背叛。你看看，潜意识的能量如此强大，它让你如此坚守自己的自我形象。</p>
+</li>
+</ul>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2021-2023 SigmaPoet
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 562px;
+    }
+    .nav.fullscreen {
+        margin-left: -562px;
+    }
+    .nav-left {
+        width: 140px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 512px;
+        }
+        .nav.fullscreen {
+            margin-left: -512px;
+        }
+        .nav-left {
+            width: 120px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 512px;
+            margin-left: -512px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

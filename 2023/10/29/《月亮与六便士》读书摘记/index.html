@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>《月亮与六便士》读书摘记 | Hexo</title>
+  <meta name="keywords" content=" book ">
+  <meta name="description" content="《月亮与六便士》读书摘记 | Hexo">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="任务描述后期有基于RK3588开发智能处理设备的需求，需要使用RK3588的CAN总线、2路以太网、1路PCIe3.0x4转4路电口千兆以太网。 需要使用公板SDK编译自己的u-boot、kernel、dts、rootfs等固件，刷到Firefly-ITX-3588J开发板中，进行bringup工作的前期验证，为后续bringup自己的板子奠定基础。 本篇记录一些刷写使用公板SDK编译固件的过程中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Firefly-ITX-3588J开发板bringup">
+<meta property="og:url" content="http://sigmapoet.gitee.io/2023/11/02/Firefly-ITX-3588J%E5%BC%80%E5%8F%91%E6%9D%BFbringup/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="任务描述后期有基于RK3588开发智能处理设备的需求，需要使用RK3588的CAN总线、2路以太网、1路PCIe3.0x4转4路电口千兆以太网。 需要使用公板SDK编译自己的u-boot、kernel、dts、rootfs等固件，刷到Firefly-ITX-3588J开发板中，进行bringup工作的前期验证，为后续bringup自己的板子奠定基础。 本篇记录一些刷写使用公板SDK编译固件的过程中">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/2022112501.png">
+<meta property="og:image" content="https://picbed.sigmapoet.com/img/2022112502.png">
+<meta property="article:published_time" content="2023-11-02T02:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-02T10:06:21.768Z">
+<meta property="article:author" content="Sigma Poet">
+<meta property="article:tag" content="firefly">
+<meta property="article:tag" content="rk3588">
+<meta property="article:tag" content="bringup">
+<meta property="article:tag" content="kernel">
+<meta property="article:tag" content="dts">
+<meta property="article:tag" content="rootfs">
+<meta property="article:tag" content="uboot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picbed.sigmapoet.com/img/2022112501.png">
+
+
+<link rel="icon" href="/img/avatar.png">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.png"/>
+</a>
+<div class="author">
+    <span>Sigma Poet</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="email"
+               href="mailto:sigma_poet@126.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=1297184906&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(57)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="读书">
+            
+            读书
+            <small>(24)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="计算机大学">
+            <i class="fold iconfont icon-right"></i>
+            计算机大学
+            <small>(8)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;编译原理">
+            
+            编译原理
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;操作系统">
+            
+            操作系统
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言">
+            <i class="fold iconfont icon-right"></i>
+            计算机语言
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言&lt;---&gt;unix环境高级编程">
+            
+            unix环境高级编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;网络编程">
+            
+            网络编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="问题库">
+            <i class="fold iconfont icon-right"></i>
+            问题库
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;环境问题">
+            
+            环境问题
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;连接问题">
+            
+            连接问题
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;性能问题">
+            
+            性能问题
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="教程库">
+            <i class="fold iconfont icon-right"></i>
+            教程库
+            <small>(20)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;linux">
+            
+            linux
+            <small>(8)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;rockchip">
+            
+            rockchip
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;树莓派">
+            
+            树莓派
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;正点原子">
+            
+            正点原子
+            <small>(10)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+    </div>
+    <div>
+        
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="57">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>汇编</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>火焰图</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>内存管理</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>前端</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>以太网</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>book</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>bringup</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>buffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cmake</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>compile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>coremark</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cpu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>css</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>driver</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dts</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>extern</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>filesystem</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>firefly</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>flamegraph</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>framebuffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>freetype</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>fs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>g++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gcc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gpio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>input</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>iperf</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ipv4</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>iso</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jpeg</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>js</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>kernel</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ko</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>lcd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>led</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>libjpeg</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>linux</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>make</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>makefile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mmu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>namespace</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>net</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>network</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>opencv</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>osi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>perf</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>performance</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>png</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>qt</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>raspberry</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>read</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rk3588</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rootfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>samba</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>socket</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>stdio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>sync</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>syscall</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tcp/ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>thread</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tlb</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>touchscreen</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tslib</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>uboot</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ubuntu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>udp</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>unix</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>user</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vino</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vnc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>wifi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>write</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zdyz</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zlib</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All 教程库 rockchip "
+           href="/2023/11/02/Firefly-ITX-3588J%E5%BC%80%E5%8F%91%E6%9D%BFbringup/"
+           data-tag="firefly,rk3588,bringup,kernel,dts,rootfs,uboot"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Firefly-ITX-3588J开发板bringup">Firefly-ITX-3588J开发板bringup</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/Linux%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/"
+           data-tag="performance,coremark,flamegraph,火焰图,perf"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Linux环境编程性能测试和分析工具">Linux环境编程性能测试和分析工具</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E8%BF%9B%E9%98%B6%E7%AF%87/"
+           data-tag="cmake,linux,ubuntu"
+           data-author="sigmapoet" >
+            <span class="post-title" title="cmake入门与进阶——进阶篇">cmake入门与进阶——进阶篇</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/ubuntu%E5%8F%8C%E7%BD%91%E5%8D%A1%E4%BC%98%E5%85%88%E7%BA%A7%E8%AE%BE%E7%BD%AE/"
+           data-tag="ubuntu,ip,以太网"
+           data-author="sigmapoet" >
+            <span class="post-title" title="ubuntu双网卡优先级设置">ubuntu双网卡优先级设置</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/ubuntu%E5%86%85%E7%BD%AE%E6%A1%8C%E9%9D%A2%E5%85%B1%E4%BA%AB%EF%BC%9Avino/"
+           data-tag="ubuntu,vino,vnc"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用ubuntu内置桌面共享：vino，实现远程桌面">使用ubuntu内置桌面共享：vino，实现远程桌面</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E5%85%A5%E9%97%A8%E7%AF%87/"
+           data-tag="cmake,linux,ubuntu"
+           data-author="sigmapoet" >
+            <span class="post-title" title="cmake入门与进阶——入门篇">cmake入门与进阶——入门篇</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E5%86%85%E6%A0%B8%E6%A0%91%E5%A4%96%E6%9E%84%E5%BB%BA%E6%A8%A1%E5%9D%97Makefile%E8%A7%A3%E6%9E%90/"
+           data-tag="kernel,ko,makefile,driver"
+           data-author="sigmapoet" >
+            <span class="post-title" title="内核树外构建模块Makefile">内核树外构建模块Makefile</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E4%BD%BF%E7%94%A8ubuntu%E9%95%9C%E5%83%8F%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96%E5%8C%85/"
+           data-tag="ubuntu,iso"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用ubuntu镜像离线安装基础依赖包">使用ubuntu镜像离线安装基础依赖包</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1%E8%87%AA%E7%8E%AF%E6%B5%8B%E8%AF%95/"
+           data-tag="ubuntu,iperf,net,namespace"
+           data-author="sigmapoet" >
+            <span class="post-title" title="单机多网卡自环测试">单机多网卡自环测试</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 树莓派 "
+           href="/2023/11/02/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%90%AF%E5%8A%A8wifi/"
+           data-tag="raspberry,pi,wifi"
+           data-author="sigmapoet" >
+            <span class="post-title" title="树莓派4b启动配置wifi">树莓派4b启动配置wifi</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%80%E5%8F%A5%E9%A1%B6%E4%B8%80%E4%B8%87%E5%8F%A5%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《一句顶一万句》读书感悟 &amp; 摘记">《一句顶一万句》读书感悟 &amp; 摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%89%E5%8D%81%E5%85%AD%E5%A4%A7%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《三十六大》读书摘记">《三十六大》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%AD%E5%9B%BD%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《为什么是中国》读书摘记">《为什么是中国》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B9%8C%E5%90%88%E4%B9%8B%E4%BC%97%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《乌合之众》读书摘记">《乌合之众》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%BB%8A%E6%97%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《今日简史》读书摘记">《今日简史》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E5%93%B2%E5%AD%A6%E7%9F%A5%E8%AF%86%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——哲学知识篇">《圆圈正义》——哲学知识篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%8D%97%E4%BA%AC%E5%A4%A7%E5%B1%A0%E6%9D%80%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《南京大屠杀》读书心得 &amp; 摘记">《南京大屠杀》读书心得 &amp; 摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E9%B8%A1%E6%B1%A4%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——鸡汤篇">《圆圈正义》——鸡汤篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E6%B3%95%E5%AD%A6%E7%9F%A5%E8%AF%86%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——法学知识篇">《圆圈正义》——法学知识篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E2%80%94%E2%80%94%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《未来简史》——第1章 人类的新议题：读书摘记 &amp; 心得">《未来简史》——第1章 人类的新议题：读书摘记 &amp; 心得</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%AF%9B%E6%B3%BD%E4%B8%9C%E9%80%89%E9%9B%86%E2%80%94%E2%80%94%E5%AE%9E%E8%B7%B5%E8%AE%BA%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《实践论》读书摘记&amp;读书心得">《实践论》读书摘记&amp;读书心得</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%9C%88%E4%BA%AE%E4%B8%8E%E5%85%AD%E4%BE%BF%E5%A3%AB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《月亮与六便士》读书摘记">《月亮与六便士》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94%E6%88%98%E7%95%A5%E6%80%9D%E7%BB%B4/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（三）——战略思维">《胜者思维》读书摘记（三）——战略思维</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E5%B0%86%E5%86%9B%E4%B9%8B%E9%81%93/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（一）——将军之道">《胜者思维》读书摘记（一）——将军之道</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E7%9C%8B%E8%A7%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《看见》读书摘记">《看见》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E5%8D%B1%E6%9C%BA/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（二）——危机">《胜者思维》读书摘记（二）——危机</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%BD%AF%E6%8A%80%E8%83%BD%20%E4%BB%A3%E7%A0%81%E4%B9%8B%E5%A4%96%E7%9A%84%E7%94%9F%E5%AD%98%E6%8C%87%E5%8D%97%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《软技能 代码之外的生存指南》读书摘记">《软技能 代码之外的生存指南》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E6%AF%9B%E6%B3%BD%E4%B8%9C%E9%80%89%E9%9B%86%20%E7%AC%AC%E4%B8%80%E5%8D%B7/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《毛泽东选集》第一卷 读书摘记">《毛泽东选集》第一卷 读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%B8%80%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（一）">《高效能人士的七个习惯》读书摘记（一）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%B8%89%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（三）">《高效能人士的七个习惯》读书摘记（三）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%BA%8C%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（二）">《高效能人士的七个习惯》读书摘记（二）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 问题库 环境问题 "
+           href="/2023/10/23/python%E4%BD%BF%E7%94%A8%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85%E6%97%B6%EF%BC%8Cmake%E9%99%B7%E5%85%A5%E6%AD%BB%E5%BE%AA%E7%8E%AF/"
+           data-tag="python,make"
+           data-author="sigmapoet" >
+            <span class="post-title" title="python使用源码安装时，make陷入死循环">python使用源码安装时，make陷入死循环</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 连接问题 "
+           href="/2023/10/23/samba%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/"
+           data-tag="samba"
+           data-author="sigmapoet" >
+            <span class="post-title" title="samba连接失败">samba连接失败</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 环境问题 "
+           href="/2023/10/23/ubuntu18.04%E5%AE%89%E8%A3%85opencv2.4.10%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/"
+           data-tag="ubuntu,opencv"
+           data-author="sigmapoet" >
+            <span class="post-title" title="ubuntu18.04安装opencv2.4.10问题记录">ubuntu18.04安装opencv2.4.10问题记录</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 性能问题 "
+           href="/2023/10/23/%E7%BB%91%E5%AE%9Athread%E5%88%B0CPU%E4%B8%8D%E5%90%8C%E6%A0%B8%E5%BF%83/"
+           data-tag="thread,cpu,qt"
+           data-author="sigmapoet" >
+            <span class="post-title" title="绑定thread到CPU不同核心">绑定thread到CPU不同核心</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 性能问题 "
+           href="/2023/10/23/%E8%A7%A3%E5%86%B3CSS%E5%92%8CJS%E5%8A%A0%E8%BD%BD%E6%85%A2%E5%AF%BC%E8%87%B4%E7%BD%91%E9%A1%B5%E5%8A%A0%E8%BD%BD%E9%9D%9E%E5%B8%B8%E7%BC%93%E6%85%A2/"
+           data-tag="前端,js,css"
+           data-author="sigmapoet" >
+            <span class="post-title" title="折腾解决【CSS和JS加载缓慢导致网页加载非常缓慢】问题">折腾解决【CSS和JS加载缓慢导致网页加载非常缓慢】问题</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/GPIO%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,gpio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="GPIO编程实践">GPIO编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/FrameBuffer%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,framebuffer,lcd"
+           data-author="sigmapoet" >
+            <span class="post-title" title="FrameBuffer编程实践">FrameBuffer编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/I.%20MX6U%20GPIO%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%82%B9%E7%81%AF/"
+           data-tag="zdyz,gpio,汇编,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I. MX6U GPIO汇编语言点灯">I. MX6U GPIO汇编语言点灯</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/led%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,gpio,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="led灯编程实践">led灯编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/U-boot%E4%BD%BF%E7%94%A8%E5%AE%9E%E9%AA%8C%EF%BC%88%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%8F%8A%E5%85%B6%E5%AE%83%EF%BC%89/"
+           data-tag="kernel,uboot,nfs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="U-boot使用实验（网络启动kernel）">U-boot使用实验（网络启动kernel）</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E4%BD%BF%E7%94%A8tslib%E5%BA%93/"
+           data-tag="zdyz,tslib,touchscreen"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用tslib库">使用tslib库</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BAjpeg%E5%9B%BE%E5%83%8F/"
+           data-tag="zdyz,lcd,jpeg,libjpeg"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示jpeg图像">在LCD上显示jpeg图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BApng%E5%9B%BE%E5%83%8F/"
+           data-tag="zdyz,lcd,png,zlib"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示png图像">在LCD上显示png图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BA%E5%AD%97%E7%AC%A6/"
+           data-tag="zdyz,lcd,freetype"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示字符图像">在LCD上显示字符图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 网络编程 "
+           href="/2023/10/21/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"
+           data-tag="tcp/ip,udp,osi,ipv4,network"
+           data-author="sigmapoet" >
+            <span class="post-title" title="网络基础知识">网络基础知识</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,input"
+           data-author="sigmapoet" >
+            <span class="post-title" title="输入设备编程实践">输入设备编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 编译原理 "
+           href="/2023/10/20/C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BC%96%E8%AF%91%E5%92%8C%E9%93%BE%E6%8E%A5/"
+           data-tag="c,gcc,g++,compile"
+           data-author="sigmapoet" >
+            <span class="post-title" title="C语言程序的编译和链接">C语言程序的编译和链接</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/unix%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+           data-tag="rootfs,unix,filesystem,fs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix文件系统学习笔记">unix文件系统学习笔记</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"
+           data-tag="kernel,syscall,user"
+           data-author="sigmapoet" >
+            <span class="post-title" title="系统调用">系统调用</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81MMU%E5%92%8C%E9%A1%B5%E8%A1%A8/"
+           data-tag="mmu,内存管理,tlb"
+           data-author="sigmapoet" >
+            <span class="post-title" title="虚拟内存、页表、MMU">虚拟内存、页表、MMU</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E4%B8%87%E5%8E%86%E5%8D%81%E4%BA%94%E5%B9%B4%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《万历十五年》读后感">《万历十五年》读后感</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E6%96%AD%E8%88%8D%E7%A6%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《断舍离》读书摘记">《断舍离》读书摘记</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%20%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%81%8C%E4%B8%9A%E7%B4%A0%E5%85%BB/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="代码整洁之道 程序员的职业素养">代码整洁之道 程序员的职业素养</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/18/IO%E7%BC%93%E5%86%B2/"
+           data-tag="buffer,io,write,read,sync,stdio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I/O缓冲">I/O缓冲</span>
+            <span class="post-date" title="2023-10-18 10:00:00">2023/10/18</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 "
+           href="/2023/10/15/extern%20C%E6%B5%85%E6%9E%90/"
+           data-tag="c,extern,c++"
+           data-author="sigmapoet" >
+            <span class="post-title" title="extern “C”浅析">extern “C”浅析</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 unix环境高级编程 "
+           href="/2023/10/15/unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97/"
+           data-tag="unix,socket"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix域套接字">unix域套接字</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-《月亮与六便士》读书摘记" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">《月亮与六便士》读书摘记</h1>
+    
+    <div class="article-meta">
+        
+        
+        <span class="author"><a>sigmapoet</a></span>
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="读书">读书</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">book</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2023-11-02 18:25:22'>2023-10-29 10:00</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E8%87%B3%E4%BA%8C%E7%AB%A0"><span class="toc-text">第一至二章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E7%AB%A0"><span class="toc-text">第四章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E8%87%B3%E5%85%AD%E7%AB%A0"><span class="toc-text">第五至六章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%83%E7%AB%A0"><span class="toc-text">第七章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%85%AB%E7%AB%A0"><span class="toc-text">第八章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0"><span class="toc-text">第十一章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%BA%8C%E7%AB%A0"><span class="toc-text">第十二章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0"><span class="toc-text">第十三章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0"><span class="toc-text">第十四章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%BA%94%E8%87%B3%E5%8D%81%E5%85%AB%E7%AB%A0"><span class="toc-text">第十五至十八章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B8%80%E7%AB%A0"><span class="toc-text">第二十一章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B9%9D%E8%87%B3%E4%B8%89%E5%8D%81%E7%AB%A0"><span class="toc-text">第二十九至三十章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E5%8D%81%E4%B8%80%E8%87%B3%E5%9B%9B%E5%8D%81%E4%B8%89%E7%AB%A0"><span class="toc-text">第四十一至四十三章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E5%8D%81%E4%B8%83%E8%87%B3%E4%BA%94%E5%8D%81%E7%AB%A0"><span class="toc-text">第四十七至五十章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E5%8D%81%E4%BA%8C%E8%87%B3%E4%BA%94%E5%8D%81%E5%9B%9B%E7%AB%A0"><span class="toc-text">第五十二至五十四章</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-6 i,
+    .toc-level-6 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="第一至二章"><a href="#第一至二章" class="headerlink" title="第一至二章"></a>第一至二章</h2><ul>
+<li><p><strong>只有艺术家才能理解艺术</strong>的说法真是荒谬至极。艺术是情感的表露，用情感表达的语言应该能为所有人理解才对。</p>
+</li>
+<li><p>人类天生具有制造神话的特性，对于那些出类拔萃的人物，人们对发生在他们身上的奇闻逸事往往好奇心极强，编造出一个个传奇故事，然后对此深信不疑，达到近乎狂热的地步。这其实是<strong>浪漫主义对平庸生活的一种抗议</strong>。</p>
+</li>
+<li><p>要想修心养性，人们每天须做两件他<strong>不喜欢</strong>的事情。</p>
+</li>
+</ul>
+<h2 id="第四章"><a href="#第四章" class="headerlink" title="第四章"></a>第四章</h2><ul>
+<li><p>她对阅读兴趣浓郁。（这在他们这类人中实在少见，那些人更感兴趣的是作家和画家本人，而非他们写的书、作的画。）她生活在自己营造的小天地里，感受着现实世界从未有过的自由。</p>
+<blockquote>
+<p>我自己经常有这样的感觉：经常看书，不同的书会在自己精神世界衍生出不同的小世界。当一本书让你流连忘返、让你陷入思考，这时的你就已经进入了一个只属于自己的小世界。</p>
+</blockquote>
+</li>
+<li><p>她接受了这些人游戏人生的生活方式，却一刻也不想按照他们的方式调整自己的行为。他们在道德上怪诞不经，穿着奇装异服，谈着荒诞无稽的谬论，这一切让她哑然失笑，但对她的信条却无一丝一毫的影响。</p>
+<blockquote>
+<p>就是应该这样，虽然别人美好的生活可以打动自己，心生羡慕，但是这个过程中没有丢失自己的生活。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第五至六章"><a href="#第五至六章" class="headerlink" title="第五至六章"></a>第五至六章</h2><ul>
+<li><p>善解人意本是一种不错的本领，却很容易被其拥有者滥用，因为他们如果察觉朋友有什么不幸之事，便会像食尸鬼一样猛扑过去，把他们的心思一股脑派上用场。同情心像油井一样喷薄而出，往往令对方窘迫不已。</p>
+</li>
+<li><p>像是由她亲口说出丈夫的最大缺点正是想保护他，不希望朋友说出有损他的话来。</p>
+<blockquote>
+<p>的确，有时候己方象征性的开火，是一种保护的作用</p>
+</blockquote>
+</li>
+<li><p>人们可以钦佩他的人品，却不愿跟他打交道。</p>
+<blockquote>
+<p>好人卡</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第七章"><a href="#第七章" class="headerlink" title="第七章"></a>第七章</h2><ul>
+<li><p>斯特里克兰太太是个讨人喜欢的女子，她爱自己的丈夫。我能想象他们的生活，无灾无祸，日子过得踏实、体面，还有两个端庄、可爱的孩子，他们注定会弘扬良好的家风和地位。夫妻两个会在不知不觉中慢慢变老，看到一双儿女长大成人。到了适当的年龄他们的儿女便会结婚生子，漂亮的女儿将来会做个贤妻良母，生出健康活泼的孩子；而帅气的儿子也会成为英气逼人的男子汉，没准会成为一名军人。最后，这对夫妻开枝散叶后就会体面地隐退，子孙承欢膝下，过着充实、幸福的生活，到时寿终正寝，入土为安。</p>
+<blockquote>
+<p>其实一个人能顺利或小有挫折的这样过完一生，已经超过绝大部分人了。</p>
+</blockquote>
+</li>
+<li><p>这一定是世间无数夫妻的剧本，这样的生活模式虽然平凡，但也不啻为恩惠，会让人想起一条缓缓流过的小河，蜿蜒流过绿草如茵的牧场，在郁郁葱葱的树荫庇护下，汇入汪洋大海。但大海是那样的平静、淡然、波澜不惊，你会突然感觉隐隐不安。也许这只是我的胡思乱想，但即使在当时这样的想法也非常强烈，我总觉得芸芸众生如此度过一生总有什么不妥。<strong>我承认这种生活的社会价值，也知道这是一种有条不紊的幸福生活，但我却有一腔不甘平庸的热血，渴望踏上一条更为放荡不羁的险途。</strong>而这种从容的快乐让我感到莫名惶恐。我内心渴望过上更为惊险的生活，只要我能做出改变，我指的是那种无法预知的改变和刺激，我便准备踏上怪石嶙峋的山峦和凶险莫测的海滩。</p>
+<blockquote>
+<p>这段话就是全书的主旨了。斯物里克兰应该是选择了这样一种生活。我佩服这个人做出这样选择的勇气，但是却对后面他的某些行为表示不赞同：他抛弃家人去选择“必须要画画的生活”，但在“必须要画画的生活”中，又找了新的家人。我认为，这是对当初自己的背叛，也是对原来家人的不负责任。有些事情，既然已经作出了选择，就不能再回头；有些东西，选择了抛弃和割舍，就失去了再拥有的资格。否则就是自己欺骗自己。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第八章"><a href="#第八章" class="headerlink" title="第八章"></a>第八章</h2><ul>
+<li><p>要让书中的角色栩栩如生，我必须把他们的性格特征刻画出来。</p>
+<blockquote>
+<p>生活也是这样，如果想让自己的角色在平日中栩栩如生，就一定要有自己的个性，而且要“刻画”，即被自己表现出来。人都是喜欢差异的，千篇一律会让人感到无聊，你不同的个性，散发着无尽的魅力。</p>
+</blockquote>
+</li>
+<li><p>社会本来就只是个有机体，而许多人只是这个有机体的一部分，生活在这个有机体内，依附于它的存在，他们本身就是虚无的。他们如同身体里的细胞，不可或缺，然而，只要他们健康地存于体内，就会淹没于这巨大的整体里。</p>
+</li>
+<li><p>像个艺术家一样，把赤裸裸的事实抛给我，而后却宣称对细节并不知情。</p>
+<blockquote>
+<p>所以激起了你的好奇、你的兴趣。</p>
+</blockquote>
+</li>
+<li><p>一位义愤填膺的正义人士，却没有能力教训恶人，实在是件痛苦的事。</p>
+</li>
+<li><p>女人有个共有的毛病，喜欢跟任何愿意聆听的人倾诉自己的隐私。</p>
+</li>
+</ul>
+<h2 id="第十一章"><a href="#第十一章" class="headerlink" title="第十一章"></a>第十一章</h2><ul>
+<li><p>人性是多么矛盾，不知道真挚的情感中会有多少矫揉造作，高贵优雅中会有多少卑劣低贱，也不知道罪孽中会有多少良善仁慧。</p>
+</li>
+<li><p>倘若要在感情上说服一个人，在午饭之前很少能成功。</p>
+<blockquote>
+<p>晚上。晚上情绪充沛。</p>
+<p>所以重要的决定千万不要晚上做。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第十二章"><a href="#第十二章" class="headerlink" title="第十二章"></a>第十二章</h2><ul>
+<li><p>我惊讶地瞥了他一眼。无论我列数他的什么罪状，他都照单全收，这种先发制人的策略让我无从招架。</p>
+<blockquote>
+<p>顺着你的话说，让你无路可走。</p>
+</blockquote>
+</li>
+<li><p>-“假如你将来撑死只能成为三流画家，那你觉得放弃现在的一切到底值不值得？毕竟在别的行当中，即便你不是出类拔萃的人物，也没多大关系；即使你做得也就还算过得去，也能舒舒服服地生活。但艺术家就不同了。” </p>
+<p>-“你他妈的真是个蠢货。”他骂道。</p>
+<blockquote>
+<p>所有人都从自己的价值观出发去规劝别人一件事该不该做，但是都没有从当事人的角度出发。一件事做与不做就只考虑一个东西：做了会不会后悔。如果不后悔，不要在意别人怎么看，就去做吧。</p>
+<p>这也是从我朋友身上学习到的经验，我们出于好心的考虑其实并不适合他人，倒不如给朋友些勇气，告诉TA你大胆去做，去让自己不后悔，无论遇到什么困难，我们在后面支持你。</p>
+</blockquote>
+</li>
+<li><p>“我都跟你说了我就得画画，这事根本由不得我。如果一个人掉进了水里，他游泳的本事是好是坏并不重要，要紧的是他得从水里出来，要不他就会淹死。”</p>
+<p>他的声音中透着一股真挚的情感，连我也不由自主地被感动了。我感觉像是有一种强大的力量在他的内心挣扎。这股力量非常强大，盖过一切，像是也违背了他自己的意愿。</p>
+<blockquote>
+<p>这是一种热爱。不是兴趣。兴趣非常肤浅，而热爱是一种可以感动自己的内驱动力。人如果能发现自己的热爱，一定会有所成就。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第十三章"><a href="#第十三章" class="headerlink" title="第十三章"></a>第十三章</h2><ul>
+<li><p>只有诗人和圣徒才会深信在沥青路面上辛勤地浇灌能开出百合花来。</p>
+<blockquote>
+<p>但是信仰就是这样，万一呢。</p>
+</blockquote>
+</li>
+<li><p>我们痛快地吃了晚餐。我是因为年轻，他是因为早已没心没肺，所以我们的胃口都不错。</p>
+</li>
+<li><p>但是，尽管他说不出个所以然来，我总觉得他的性格中有样东西，让人觉得他并不无趣，可能是真诚吧。</p>
+</li>
+<li><p>我到巴黎不下百次，但每次都会兴奋不已，每次走到街上都让我觉得会有奇遇。斯特里克兰自始至终都能坦然自若。现在回想起来，我想他早已对周遭的事情熟视无睹，只会注意那些令他的灵魂波澜骤起的东西。</p>
+</li>
+<li><p>“我在伦敦想要什么女人都有，我不是为这个到这里的。”</p>
+<blockquote>
+<p>这种人是真的狠，目的性强，清楚自己想要什么，而且又能抗拒诱惑。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第十四章"><a href="#第十四章" class="headerlink" title="第十四章"></a>第十四章</h2><ul>
+<li><p>在我跟他打交道的这段时间里，正是这种满不在乎让我处处碰壁。</p>
+<blockquote>
+<p>所以轻视才是对别人最有力的回击。冷漠才是最诛人心的武器。不得不说，我经历过冷漠，非常难受。</p>
+</blockquote>
+</li>
+<li><p>如果一个人违背传统在他们同辈人中早已司空见惯，那么他做出在世人眼中有悖常理的事并不难。</p>
+</li>
+<li><p>但这个人却是真的不在乎人们如何看待他，所以，礼规传统对他来说毫无约束力。他就像一个全身抹了油的摔跤选手，你无论如何也甭想抓住他。这就给了他一种自由，让人恨得咬牙切齿。</p>
+</li>
+</ul>
+<h2 id="第十五至十八章"><a href="#第十五至十八章" class="headerlink" title="第十五至十八章"></a>第十五至十八章</h2><ul>
+<li><p>渺小和伟大，恶毒和善良，仇恨和爱意是可以在同一颗心里并行不悖的。</p>
+</li>
+<li><p>如果老是在人前唠叨她的不幸，人们肯定很快就会厌烦了。</p>
+</li>
+<li><p>有人说苦难会让人变得高风亮节，其实不然，有时幸福的生活才会让人的情操变得高尚，苦难在大多数情况下只会让人变得心胸狭窄，苦大仇深。</p>
+</li>
+<li><p>他很重感情，但他容易被撩动的感情却总是显得很荒唐，让人觉得虽然你接受了他的善心，却不会心存感激。</p>
+<blockquote>
+<p>没有良知的人会把他人的善良看作愚蠢，把别人看成傻子。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第二十一章"><a href="#第二十一章" class="headerlink" title="第二十一章"></a>第二十一章</h2><ul>
+<li><p>幼稚，你要是一丁点儿都不在乎某一个人对你的看法，又怎会在乎一群人的意见呢？</p>
+<blockquote>
+<p>在现在这个社会中，我觉得这话说得有点反了，而且好像没办法将个体和群体之间进行类比和推演。</p>
+</blockquote>
+</li>
+<li><p>表情虽有些恶毒，但并没什么恶意。</p>
+</li>
+<li><p>我才没时间折腾这些乱七八糟的事呢。生命苦短，没有时间既谈情说爱又搞艺术。</p>
+</li>
+</ul>
+<h2 id="第二十九至三十章"><a href="#第二十九至三十章" class="headerlink" title="第二十九至三十章"></a>第二十九至三十章</h2><ul>
+<li><p>我爱她甚至超过爱我自己。在我看来，一旦涉及爱情，若是还考虑自尊，那只能说明你最爱的人其实是你自己。</p>
+<blockquote>
+<p>真实的情况就是应该先爱自己，再去爱人。自己都不爱自己，别人也会轻贱你，哪怕对方是你的爱人。</p>
+</blockquote>
+</li>
+<li><p>我觉得她对他的爱，不过是女性对于关怀和舒适的回应而已，很多女人都把这种感情错当成爱情。这是一种被动的感情，任何对象都能将之唤起，就好像攀缘植物能在任何树木上生长。</p>
+</li>
+</ul>
+<h2 id="第四十一至四十三章"><a href="#第四十一至四十三章" class="headerlink" title="第四十一至四十三章"></a>第四十一至四十三章</h2><ul>
+<li><p>“一个女人可以原谅男人伤害她，”他道，“却永远都不能宽恕他为了她所做出的牺牲。”</p>
+<blockquote>
+<p>这里留个问号，真的没有理解这句话？？？？？？？？</p>
+</blockquote>
+</li>
+<li><p>从一个人的作品中能看出他的本性。在社会交往中，他们只是展示出他们希望被这个世界接受的表象，要想真正了解他们，只能根据他们下意识的小举动和那些稍纵即逝，就连他们自己也没意识到的表情进行推测。</p>
+</li>
+<li><p>这就是小说不真实的原因所在。一般来说，在男人心里，爱情只是个小插曲，而每天还会发生很多其他事，但小说会强调爱情，认为爱情至关重要，可现实生活中并非如此。只有很少的男人觉得爱情是这世上最重要的事，而且这些男人都很无趣；即便是女人，虽觉得爱情至上，也会对将爱情视为头等大事的男人不屑一顾。</p>
+</li>
+<li><p>他专心致志地追寻目标，为此，他不仅愿意牺牲他自己（很多人都能做到这一点），还会牺牲别人。</p>
+<blockquote>
+<p>所以如前所述，这种人非常狠。有曹操“宁可我负天下人”那味儿了。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="第四十七至五十章"><a href="#第四十七至五十章" class="headerlink" title="第四十七至五十章"></a>第四十七至五十章</h2><ul>
+<li><p>这些流浪汉一点也不吝啬，只要有钱，就会毫不犹豫地与别人分享。他们来自这个世界上的不同国家，可这不会妨碍他们成为好朋友；因为他们觉得他们是一个伟大国家的自由臣民，他们都处在这个国家的疆域范围内，这个国家就是流浪国。</p>
+</li>
+<li><p>有时候，人们找到一个地方，会莫名其妙地对那里产生归属感。</p>
+</li>
+<li><p>个性？在我看来，只考虑半个小时，就决定抛弃似锦的前途，只有很有个性的人才干得出来，因为你要能看得出，另一种生活方式是否具有更重要的意义。只有更有个性的人才不会因为突然走这一步而后悔。</p>
+<blockquote>
+<p>做一件事该不该的标准：自己会不会后悔</p>
+</blockquote>
+</li>
+<li><p>那么，成为优秀的医生，每月赚一万英镑，娶个漂亮妻子，就是成功？我觉得答案如何，取决于每个人对人生的态度，对社会的要求，对个人的要求。</p>
+</li>
+</ul>
+<h2 id="第五十二至五十四章"><a href="#第五十二至五十四章" class="headerlink" title="第五十二至五十四章"></a>第五十二至五十四章</h2><ul>
+<li><p>斯特里克兰倒是乐得逍遥，跟这些人在那里安了家，一大家子住在一起。</p>
+<blockquote>
+<p>如果是这样的话，我觉得这个人倒是很可恶了。当时的狂热自己还是没坚持下来。就此看来，当时不抛弃家庭，也许也能成就画画的成就。不能坚持到底，就让人大跌眼镜。</p>
+</blockquote>
+</li>
+<li><p>你知道吗，人要是被爱情冲昏了头，可能对周遭的一切充耳不闻，视而不见。他们就好比锁在船上划桨的奴隶，很少能主宰自己的一举一动。将斯特里克兰束缚住的那股狂热就跟爱情一样蛮不讲理。</p>
+<blockquote>
+<p>如果可以被像爱情一样的别的东西冲昏头脑，或许凭着这种冲动和热爱，也可以做出些成就。</p>
+</blockquote>
+</li>
+<li><p>俘获斯特里克兰的狂热是一种对美的创作激情，让他片刻不得安宁，驱策着他东奔西走。他就像一个不知疲倦的朝圣者，会永远向着让他魂牵梦绕的圣地前进，附在他身上的魔鬼却毫无怜悯之心。有些人追求真理的愿望非常强烈，为了达到目的，就算把他的生活彻底颠覆也在所不惜。斯特里克兰就是这样的人，只不过他追求的是美，而不是真理，我打心眼里同情他。</p>
+</li>
+<li><p>我们的生活简朴、单纯，也没什么很大的抱负，如果说我们有什么值得自豪的地方，那就是我们渴望用双手创造财富。我们不会怨恨、嫉妒别人。啊，亲爱的先生，有人说‘能劳动就是福气’是句空话，但对我来说这句话却有着重要的意义。我很幸福。</p>
+</li>
+</ul>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2021-2023 SigmaPoet
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 562px;
+    }
+    .nav.fullscreen {
+        margin-left: -562px;
+    }
+    .nav-left {
+        width: 140px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 512px;
+        }
+        .nav.fullscreen {
+            margin-left: -512px;
+        }
+        .nav-left {
+            width: 120px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 512px;
+            margin-left: -512px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
