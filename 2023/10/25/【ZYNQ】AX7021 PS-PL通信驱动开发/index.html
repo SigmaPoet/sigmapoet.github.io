@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>【ZYNQ】AX7021 PS-PL通信驱动开发 | Hexo</title>
+  <meta name="keywords" content=" zynq , irq , platform , wait_queue , ioremap , driver ">
+  <meta name="description" content="【ZYNQ】AX7021 PS-PL通信驱动开发 | Hexo">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="cmake简介 cmake诞生主要是为了解决make+Makefile这种方式无法实现跨平台编译的问题，cmake是可以实现跨平台的编译工具。  在不同平台下，make工具遵循着不同的规范和标准，对应的makefile文件语法、格式也不同。   cmake工具通过解析CMakeLists.txt，自动生成Makefile。  cmake官方教程  文档链接地址：https:&#x2F;&#x2F;cmake.org&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cmake入门与进阶——入门篇">
+<meta property="og:url" content="http://sigmapoet.gitee.io/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E5%85%A5%E9%97%A8%E7%AF%87/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="cmake简介 cmake诞生主要是为了解决make+Makefile这种方式无法实现跨平台编译的问题，cmake是可以实现跨平台的编译工具。  在不同平台下，make工具遵循着不同的规范和标准，对应的makefile文件语法、格式也不同。   cmake工具通过解析CMakeLists.txt，自动生成Makefile。  cmake官方教程  文档链接地址：https:&#x2F;&#x2F;cmake.org&#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-02T02:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-02T09:00:12.279Z">
+<meta property="article:author" content="Sigma Poet">
+<meta property="article:tag" content="cmake">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="ubuntu">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.png">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.png"/>
+</a>
+<div class="author">
+    <span>Sigma Poet</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="email"
+               href="mailto:sigma_poet@126.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=1297184906&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(67)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="读书">
+            
+            读书
+            <small>(24)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="计算机大学">
+            <i class="fold iconfont icon-right"></i>
+            计算机大学
+            <small>(8)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;编译原理">
+            
+            编译原理
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;操作系统">
+            
+            操作系统
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言">
+            <i class="fold iconfont icon-right"></i>
+            计算机语言
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;计算机语言&lt;---&gt;unix环境高级编程">
+            
+            unix环境高级编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="计算机大学&lt;---&gt;网络编程">
+            
+            网络编程
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="问题库">
+            <i class="fold iconfont icon-right"></i>
+            问题库
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;环境问题">
+            
+            环境问题
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;连接问题">
+            
+            连接问题
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="问题库&lt;---&gt;性能问题">
+            
+            性能问题
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="教程库">
+            <i class="fold iconfont icon-right"></i>
+            教程库
+            <small>(30)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;ZYNQ">
+            
+            ZYNQ
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;linux">
+            
+            linux
+            <small>(8)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;rockchip">
+            
+            rockchip
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;华为&amp;海思">
+            
+            华为&amp;海思
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;树莓派">
+            
+            树莓派
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="教程库&lt;---&gt;正点原子">
+            
+            正点原子
+            <small>(11)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+    </div>
+    <div>
+        
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="67">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>7020</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>汇编</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>火焰图</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>内存管理</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>前端</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>以太网</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>aarch64</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>arm</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ascend310</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>atlas</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>book</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>bringup</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>buffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>c++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cann</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>char</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cmake</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>compile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>coremark</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cpu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cross_compile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>css</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>driver</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dts</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>environment</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>extern</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>filesystem</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>firefly</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>flamegraph</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>framebuffer</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>freetype</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>fs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>g++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gcc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>gpio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>hi3516</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>hisi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>image</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>initramfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>input</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ioremap</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>iperf</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ipv4</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>irq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>iso</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jffs2</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jpeg</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>js</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>kernel</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ko</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>lcd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>led</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>libjpeg</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>linux</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>make</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>makefile</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mmu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>namespace</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>net</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>network</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>opencv</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>osi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>perf</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>performance</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>petalinux</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>platform</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>png</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pytorch</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>qt</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>raspberry</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>read</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rk3588</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rootfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>samba</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>socket</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>stdio</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>sync</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>syscall</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tcp/ip</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>thread</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tlb</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>touchscreen</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>tslib</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>uboot</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>ubuntu</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>udp</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>unix</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>user</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vino</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vivado</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>vnc</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>wait_queue</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>wifi</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>write</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>x86_64</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zdyz</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zlib</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>zynq</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All 教程库 rockchip "
+           href="/2023/11/02/Firefly-ITX-3588J%E5%BC%80%E5%8F%91%E6%9D%BFbringup/"
+           data-tag="firefly,rk3588,bringup,kernel,dts,rootfs,uboot"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Firefly-ITX-3588J开发板bringup">Firefly-ITX-3588J开发板bringup</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/Linux%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/"
+           data-tag="performance,coremark,flamegraph,火焰图,perf"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Linux环境编程性能测试和分析工具">Linux环境编程性能测试和分析工具</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E5%85%A5%E9%97%A8%E7%AF%87/"
+           data-tag="cmake,linux,ubuntu"
+           data-author="sigmapoet" >
+            <span class="post-title" title="cmake入门与进阶——入门篇">cmake入门与进阶——入门篇</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/cmake%E5%85%A5%E9%97%A8%E4%B8%8E%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94%E8%BF%9B%E9%98%B6%E7%AF%87/"
+           data-tag="cmake,linux,ubuntu"
+           data-author="sigmapoet" >
+            <span class="post-title" title="cmake入门与进阶——进阶篇">cmake入门与进阶——进阶篇</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/ubuntu%E5%8F%8C%E7%BD%91%E5%8D%A1%E4%BC%98%E5%85%88%E7%BA%A7%E8%AE%BE%E7%BD%AE/"
+           data-tag="ubuntu,ip,以太网"
+           data-author="sigmapoet" >
+            <span class="post-title" title="ubuntu双网卡优先级设置">ubuntu双网卡优先级设置</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/ubuntu%E5%86%85%E7%BD%AE%E6%A1%8C%E9%9D%A2%E5%85%B1%E4%BA%AB%EF%BC%9Avino/"
+           data-tag="ubuntu,vino,vnc"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用ubuntu内置桌面共享：vino，实现远程桌面">使用ubuntu内置桌面共享：vino，实现远程桌面</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E4%BD%BF%E7%94%A8ubuntu%E9%95%9C%E5%83%8F%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96%E5%8C%85/"
+           data-tag="ubuntu,iso"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用ubuntu镜像离线安装基础依赖包">使用ubuntu镜像离线安装基础依赖包</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E5%86%85%E6%A0%B8%E6%A0%91%E5%A4%96%E6%9E%84%E5%BB%BA%E6%A8%A1%E5%9D%97Makefile%E8%A7%A3%E6%9E%90/"
+           data-tag="kernel,driver,ko,makefile"
+           data-author="sigmapoet" >
+            <span class="post-title" title="内核树外构建模块Makefile">内核树外构建模块Makefile</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 linux "
+           href="/2023/11/02/%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1%E8%87%AA%E7%8E%AF%E6%B5%8B%E8%AF%95/"
+           data-tag="ubuntu,iperf,net,namespace"
+           data-author="sigmapoet" >
+            <span class="post-title" title="单机多网卡自环测试">单机多网卡自环测试</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 教程库 树莓派 "
+           href="/2023/11/02/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%90%AF%E5%8A%A8wifi/"
+           data-tag="raspberry,pi,wifi"
+           data-author="sigmapoet" >
+            <span class="post-title" title="树莓派4b启动配置wifi">树莓派4b启动配置wifi</span>
+            <span class="post-date" title="2023-11-02 10:00:00">2023/11/02</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%80%E5%8F%A5%E9%A1%B6%E4%B8%80%E4%B8%87%E5%8F%A5%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《一句顶一万句》读书感悟 &amp; 摘记">《一句顶一万句》读书感悟 &amp; 摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%89%E5%8D%81%E5%85%AD%E5%A4%A7%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《三十六大》读书摘记">《三十六大》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%AD%E5%9B%BD%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《为什么是中国》读书摘记">《为什么是中国》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%B9%8C%E5%90%88%E4%B9%8B%E4%BC%97%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《乌合之众》读书摘记">《乌合之众》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%8D%97%E4%BA%AC%E5%A4%A7%E5%B1%A0%E6%9D%80%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《南京大屠杀》读书心得 &amp; 摘记">《南京大屠杀》读书心得 &amp; 摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E4%BB%8A%E6%97%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《今日简史》读书摘记">《今日简史》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E6%B3%95%E5%AD%A6%E7%9F%A5%E8%AF%86%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——法学知识篇">《圆圈正义》——法学知识篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E9%B8%A1%E6%B1%A4%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——鸡汤篇">《圆圈正义》——鸡汤篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E5%9C%86%E5%9C%88%E6%AD%A3%E4%B9%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%E2%80%94%E2%80%94%E5%93%B2%E5%AD%A6%E7%9F%A5%E8%AF%86%E7%AF%87/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《圆圈正义》——哲学知识篇">《圆圈正义》——哲学知识篇</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E2%80%94%E2%80%94%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《未来简史》——第1章 人类的新议题：读书摘记 &amp; 心得">《未来简史》——第1章 人类的新议题：读书摘记 &amp; 心得</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%9C%88%E4%BA%AE%E4%B8%8E%E5%85%AD%E4%BE%BF%E5%A3%AB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《月亮与六便士》读书摘记">《月亮与六便士》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E6%AF%9B%E6%B3%BD%E4%B8%9C%E9%80%89%E9%9B%86%E2%80%94%E2%80%94%E5%AE%9E%E8%B7%B5%E8%AE%BA%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《实践论》读书摘记&amp;读书心得">《实践论》读书摘记&amp;读书心得</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E7%9C%8B%E8%A7%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《看见》读书摘记">《看见》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E5%B0%86%E5%86%9B%E4%B9%8B%E9%81%93/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（一）——将军之道">《胜者思维》读书摘记（一）——将军之道</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94%E6%88%98%E7%95%A5%E6%80%9D%E7%BB%B4/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（三）——战略思维">《胜者思维》读书摘记（三）——战略思维</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%83%9C%E8%80%85%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E5%8D%B1%E6%9C%BA/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《胜者思维》读书摘记（二）——危机">《胜者思维》读书摘记（二）——危机</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E3%80%8A%E8%BD%AF%E6%8A%80%E8%83%BD%20%E4%BB%A3%E7%A0%81%E4%B9%8B%E5%A4%96%E7%9A%84%E7%94%9F%E5%AD%98%E6%8C%87%E5%8D%97%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《软技能 代码之外的生存指南》读书摘记">《软技能 代码之外的生存指南》读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E6%AF%9B%E6%B3%BD%E4%B8%9C%E9%80%89%E9%9B%86%20%E7%AC%AC%E4%B8%80%E5%8D%B7/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《毛泽东选集》第一卷 读书摘记">《毛泽东选集》第一卷 读书摘记</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%B8%80%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（一）">《高效能人士的七个习惯》读书摘记（一）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%B8%89%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（三）">《高效能人士的七个习惯》读书摘记（三）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/29/%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%EF%BC%88%E4%BA%8C%EF%BC%89/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《高效能人士的七个习惯》读书摘记（二）">《高效能人士的七个习惯》读书摘记（二）</span>
+            <span class="post-date" title="2023-10-29 10:00:00">2023/10/29</span>
+        </a>
+        
+        
+        <a  class="All 教程库 华为&amp;海思 "
+           href="/2023/10/28/Atlas200%20DK(3000%E5%9E%8B%E5%8F%B7)%E5%90%AF%E5%8A%A8%E9%95%9C%E5%83%8F%E5%88%B6%E5%8D%A1%E6%AD%A5%E9%AA%A4%E8%AE%B0%E5%BD%95/"
+           data-tag="ascend310,atlas,image"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Atlas200 DK(3000型号)启动镜像制卡步骤记录">Atlas200 DK(3000型号)启动镜像制卡步骤记录</span>
+            <span class="post-date" title="2023-10-28 10:00:00">2023/10/28</span>
+        </a>
+        
+        
+        <a  class="All 教程库 华为&amp;海思 "
+           href="/2023/10/28/atlas200DK%E7%A6%BB%E7%BA%BF%E6%8E%A8%E7%90%86%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/"
+           data-tag="ascend310,atlas,environment,python"
+           data-author="sigmapoet" >
+            <span class="post-title" title="atlas200DK离线推理运行环境搭建">atlas200DK离线推理运行环境搭建</span>
+            <span class="post-date" title="2023-10-28 10:00:00">2023/10/28</span>
+        </a>
+        
+        
+        <a  class="All 教程库 华为&amp;海思 "
+           href="/2023/10/28/opencv2.4.10-aarch64%E7%89%88%E6%9C%AC%E7%A7%BB%E6%A4%8D%E8%AE%B0%E5%BD%95/"
+           data-tag="atlas,opencv,aarch64,x86_64,cross_compile"
+           data-author="sigmapoet" >
+            <span class="post-title" title="opencv2.4.10-aarch64版本移植">opencv2.4.10-aarch64版本移植</span>
+            <span class="post-date" title="2023-10-28 10:00:00">2023/10/28</span>
+        </a>
+        
+        
+        <a  class="All 教程库 华为&amp;海思 "
+           href="/2023/10/28/%E5%8D%8E%E4%B8%BAAtlas200%20DK%20Pytorch%E6%A1%86%E6%9E%B6%E5%AE%89%E8%A3%85(Pytorch%20Adapter)%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/"
+           data-tag="atlas,pytorch,cann"
+           data-author="sigmapoet" >
+            <span class="post-title" title="Atlas200 DK Pytorch框架安装(Pytorch Adapter)踩坑记录">Atlas200 DK Pytorch框架安装(Pytorch Adapter)踩坑记录</span>
+            <span class="post-date" title="2023-10-28 10:00:00">2023/10/28</span>
+        </a>
+        
+        
+        <a  class="All 教程库 华为&amp;海思 "
+           href="/2023/10/28/%E6%B5%B7%E6%80%9D%E5%B9%B3%E5%8F%B0Hi3519AV100%E7%A7%BB%E6%A4%8DOpenCV2.4.10/"
+           data-tag="opencv,x86_64,cross_compile,arm,hi3516,hisi"
+           data-author="sigmapoet" >
+            <span class="post-title" title="海思平台Hi3519AV100移植OpenCV2.4.10">海思平台Hi3519AV100移植OpenCV2.4.10</span>
+            <span class="post-date" title="2023-10-28 10:00:00">2023/10/28</span>
+        </a>
+        
+        
+        <a  class="All 教程库 ZYNQ "
+           href="/2023/10/25/%E4%BD%BF%E7%94%A8petalinux%E5%88%B6%E4%BD%9CJFFS2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/"
+           data-tag="zynq,petalinux,vivado,7020,jffs2"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用petalinux制作JFFS2文件系统">使用petalinux制作JFFS2文件系统</span>
+            <span class="post-date" title="2023-10-25 10:00:00">2023/10/25</span>
+        </a>
+        
+        
+        <a  class="All 教程库 ZYNQ "
+           href="/2023/10/25/%E4%BD%BF%E7%94%A8petalinux%E5%B7%A5%E5%85%B7%E5%88%B6%E4%BD%9CZYNQ%20linux%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E9%95%9C%E5%83%8F/"
+           data-tag="zynq,petalinux,vivado,7020"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用petalinux工具制作ZYNQ linux系统启动镜像">使用petalinux工具制作ZYNQ linux系统启动镜像</span>
+            <span class="post-date" title="2023-10-25 10:00:00">2023/10/25</span>
+        </a>
+        
+        
+        <a  class="All 教程库 ZYNQ "
+           href="/2023/10/25/%E3%80%90ZYNQ%E3%80%91AX7021%20PS-PL%E9%80%9A%E4%BF%A1%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/"
+           data-tag="zynq,irq,platform,wait_queue,ioremap,driver"
+           data-author="sigmapoet" >
+            <span class="post-title" title="【ZYNQ】AX7021 PS-PL通信驱动开发">【ZYNQ】AX7021 PS-PL通信驱动开发</span>
+            <span class="post-date" title="2023-10-25 10:00:00">2023/10/25</span>
+        </a>
+        
+        
+        <a  class="All 教程库 ZYNQ "
+           href="/2023/10/25/%E4%BF%AE%E6%94%B9petalinux%E7%BC%96%E8%AF%91%E7%9A%84INITRAMFS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/"
+           data-tag="zynq,petalinux,vivado,7020,initramfs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="修改petalinux编译的INITRAMFS文件系统">修改petalinux编译的INITRAMFS文件系统</span>
+            <span class="post-date" title="2023-10-25 10:00:00">2023/10/25</span>
+        </a>
+        
+        
+        <a  class="All 问题库 环境问题 "
+           href="/2023/10/23/python%E4%BD%BF%E7%94%A8%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85%E6%97%B6%EF%BC%8Cmake%E9%99%B7%E5%85%A5%E6%AD%BB%E5%BE%AA%E7%8E%AF/"
+           data-tag="python,make"
+           data-author="sigmapoet" >
+            <span class="post-title" title="python使用源码安装时，make陷入死循环">python使用源码安装时，make陷入死循环</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 环境问题 "
+           href="/2023/10/23/ubuntu18.04%E5%AE%89%E8%A3%85opencv2.4.10%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/"
+           data-tag="ubuntu,opencv"
+           data-author="sigmapoet" >
+            <span class="post-title" title="ubuntu18.04安装opencv2.4.10问题记录">ubuntu18.04安装opencv2.4.10问题记录</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 连接问题 "
+           href="/2023/10/23/samba%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/"
+           data-tag="samba"
+           data-author="sigmapoet" >
+            <span class="post-title" title="samba连接失败">samba连接失败</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 性能问题 "
+           href="/2023/10/23/%E7%BB%91%E5%AE%9Athread%E5%88%B0CPU%E4%B8%8D%E5%90%8C%E6%A0%B8%E5%BF%83/"
+           data-tag="thread,cpu,qt"
+           data-author="sigmapoet" >
+            <span class="post-title" title="绑定thread到CPU不同核心">绑定thread到CPU不同核心</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 问题库 性能问题 "
+           href="/2023/10/23/%E8%A7%A3%E5%86%B3CSS%E5%92%8CJS%E5%8A%A0%E8%BD%BD%E6%85%A2%E5%AF%BC%E8%87%B4%E7%BD%91%E9%A1%B5%E5%8A%A0%E8%BD%BD%E9%9D%9E%E5%B8%B8%E7%BC%93%E6%85%A2/"
+           data-tag="前端,js,css"
+           data-author="sigmapoet" >
+            <span class="post-title" title="折腾解决【CSS和JS加载缓慢导致网页加载非常缓慢】问题">折腾解决【CSS和JS加载缓慢导致网页加载非常缓慢】问题</span>
+            <span class="post-date" title="2023-10-23 10:00:00">2023/10/23</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/FrameBuffer%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,framebuffer,lcd"
+           data-author="sigmapoet" >
+            <span class="post-title" title="FrameBuffer编程实践">FrameBuffer编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/GPIO%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,gpio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="GPIO编程实践">GPIO编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/I.%20MX6U%20GPIO%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%82%B9%E7%81%AF/"
+           data-tag="zdyz,gpio,汇编,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I. MX6U GPIO汇编语言点灯">I. MX6U GPIO汇编语言点灯</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/U-boot%E4%BD%BF%E7%94%A8%E5%AE%9E%E9%AA%8C%EF%BC%88%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%8F%8A%E5%85%B6%E5%AE%83%EF%BC%89/"
+           data-tag="kernel,uboot,nfs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="U-boot使用实验（网络启动kernel）">U-boot使用实验（网络启动kernel）</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/led%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,gpio,led"
+           data-author="sigmapoet" >
+            <span class="post-title" title="led灯编程实践">led灯编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E4%BD%BF%E7%94%A8tslib%E5%BA%93/"
+           data-tag="zdyz,tslib,touchscreen"
+           data-author="sigmapoet" >
+            <span class="post-title" title="使用tslib库">使用tslib库</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BAjpeg%E5%9B%BE%E5%83%8F/"
+           data-tag="zdyz,lcd,jpeg,libjpeg"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示jpeg图像">在LCD上显示jpeg图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BApng%E5%9B%BE%E5%83%8F/"
+           data-tag="zdyz,lcd,png,zlib"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示png图像">在LCD上显示png图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%9C%A8LCD%E4%B8%8A%E6%98%BE%E7%A4%BA%E5%AD%97%E7%AC%A6/"
+           data-tag="zdyz,lcd,freetype"
+           data-author="sigmapoet" >
+            <span class="post-title" title="在LCD上显示字符图像">在LCD上显示字符图像</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93/"
+           data-tag="zdyz,driver,char"
+           data-author="sigmapoet" >
+            <span class="post-title" title="字符设备驱动开发实验总结">字符设备驱动开发实验总结</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 网络编程 "
+           href="/2023/10/21/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"
+           data-tag="tcp/ip,udp,osi,ipv4,network"
+           data-author="sigmapoet" >
+            <span class="post-title" title="网络基础知识">网络基础知识</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 教程库 正点原子 "
+           href="/2023/10/21/%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5/"
+           data-tag="zdyz,input"
+           data-author="sigmapoet" >
+            <span class="post-title" title="输入设备编程实践">输入设备编程实践</span>
+            <span class="post-date" title="2023-10-21 10:00:00">2023/10/21</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 编译原理 "
+           href="/2023/10/20/C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BC%96%E8%AF%91%E5%92%8C%E9%93%BE%E6%8E%A5/"
+           data-tag="c,gcc,g++,compile"
+           data-author="sigmapoet" >
+            <span class="post-title" title="C语言程序的编译和链接">C语言程序的编译和链接</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/unix%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+           data-tag="rootfs,unix,filesystem,fs"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix文件系统学习笔记">unix文件系统学习笔记</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"
+           data-tag="kernel,syscall,user"
+           data-author="sigmapoet" >
+            <span class="post-title" title="系统调用">系统调用</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/20/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81MMU%E5%92%8C%E9%A1%B5%E8%A1%A8/"
+           data-tag="mmu,内存管理,tlb"
+           data-author="sigmapoet" >
+            <span class="post-title" title="虚拟内存、页表、MMU">虚拟内存、页表、MMU</span>
+            <span class="post-date" title="2023-10-20 10:00:00">2023/10/20</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E4%B8%87%E5%8E%86%E5%8D%81%E4%BA%94%E5%B9%B4%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《万历十五年》读后感">《万历十五年》读后感</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E3%80%8A%E6%96%AD%E8%88%8D%E7%A6%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E6%91%98%E8%AE%B0/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="《断舍离》读书摘记">《断舍离》读书摘记</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 读书 "
+           href="/2023/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%20%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%81%8C%E4%B8%9A%E7%B4%A0%E5%85%BB/"
+           data-tag="book"
+           data-author="sigmapoet" >
+            <span class="post-title" title="代码整洁之道 程序员的职业素养">代码整洁之道 程序员的职业素养</span>
+            <span class="post-date" title="2023-10-19 10:00:00">2023/10/19</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 操作系统 "
+           href="/2023/10/18/IO%E7%BC%93%E5%86%B2/"
+           data-tag="buffer,io,write,read,sync,stdio"
+           data-author="sigmapoet" >
+            <span class="post-title" title="I/O缓冲">I/O缓冲</span>
+            <span class="post-date" title="2023-10-18 10:00:00">2023/10/18</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 "
+           href="/2023/10/15/extern%20C%E6%B5%85%E6%9E%90/"
+           data-tag="c,extern,c++"
+           data-author="sigmapoet" >
+            <span class="post-title" title="extern “C”浅析">extern “C”浅析</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        
+        <a  class="All 计算机大学 计算机语言 unix环境高级编程 "
+           href="/2023/10/15/unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97/"
+           data-tag="unix,socket"
+           data-author="sigmapoet" >
+            <span class="post-title" title="unix域套接字">unix域套接字</span>
+            <span class="post-date" title="2023-10-15 10:00:00">2023/10/15</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-【ZYNQ】AX7021 PS-PL通信驱动开发" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">【ZYNQ】AX7021 PS-PL通信驱动开发</h1>
+    
+    <div class="article-meta">
+        
+        
+        <span class="author"><a>sigmapoet</a></span>
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="教程库">教程库</a> > 
+            
+            <a  data-rel="教程库&lt;---&gt;ZYNQ">ZYNQ</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">zynq</a>
+            
+            <a class="color4">irq</a>
+            
+            <a class="color4">platform</a>
+            
+            <a class="color1">wait_queue</a>
+            
+            <a class="color3">ioremap</a>
+            
+            <a class="color2">driver</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2023-11-02 20:39:00'>2023-10-25 10:00</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%83%8C%E6%99%AF"><span class="toc-text">开发背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E4%BF%A1%E6%81%AF"><span class="toc-text">环境信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PL%E7%AB%AF"><span class="toc-text">PL端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PS%E7%AB%AF"><span class="toc-text">PS端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BA%E5%8C%96Linux%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F"><span class="toc-text">固化Linux操作系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E6%A0%91"><span class="toc-text">设备树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E4%BF%A1%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91"><span class="toc-text">通信驱动开发</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#platform%E9%A9%B1%E5%8A%A8%E6%A1%86%E6%9E%B6"><span class="toc-text">platform驱动框架</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#I-O%E5%86%85%E5%AD%98%E8%AE%BF%E9%97%AE"><span class="toc-text">I&#x2F;O内存访问</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6"><span class="toc-text">中断机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%BB%E5%A1%9EIO%E6%9C%BA%E5%88%B6%EF%BC%88%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97%EF%BC%89"><span class="toc-text">阻塞IO机制（等待队列）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81"><span class="toc-text">完整驱动代码</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-6 i,
+    .toc-level-6 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="开发背景"><a href="#开发背景" class="headerlink" title="开发背景"></a>开发背景</h2><ul>
+<li>PL端向寄存器写入数据，并通过共享中断通知PS端接收数据；</li>
+<li>PS端收到共享中断，从寄存器中读出数据。</li>
+</ul>
+<h2 id="环境信息"><a href="#环境信息" class="headerlink" title="环境信息"></a>环境信息</h2><ul>
+<li>windows11 22H2 + vivado 2018.2</li>
+<li>ubuntu16.04 + petalinux 2018.2</li>
+</ul>
+<h2 id="PL端"><a href="#PL端" class="headerlink" title="PL端"></a>PL端</h2><p>PL端需要加入BRAM和共享中断。BRAM作为PL和PS端的公共读写寄存器，充当缓冲区；共享中断用于通知PS端有数据在缓冲区中等待读出。</p>
+<p>AX7021B拥有16个共享中断，由于PL端以太网也使用共享中断，因此通过一个Concat核将多个中断信号并行转为串行，PL设计文件（共享中断）如下图所示。</p>
+<p>图中第0-11位中断为以太网口和DMA使用的中断，第12位中断为我们通知PS端有数据等待读出的中断， 即第13个共享中断。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053101.png" width="50%" height="50%">
+</div>
+
+
+<h2 id="PS端"><a href="#PS端" class="headerlink" title="PS端"></a>PS端</h2><h3 id="固化Linux操作系统"><a href="#固化Linux操作系统" class="headerlink" title="固化Linux操作系统"></a>固化Linux操作系统</h3><p>按照AX7021B开发板的教程手册，使用petalinux工具，在前述生成的.hdf文件上配置编译linux系统，流程中涉及设备树修改的部分请见下一节。按照流程将最终生成的BOOT.BIN文件烧录到QSPI Flash中。</p>
+<h3 id="设备树"><a href="#设备树" class="headerlink" title="设备树"></a>设备树</h3><p>设备树需要添加一个中断节点，以便PS端可以在驱动中注册中断，使用该中断。需要在设备树dtsi文件中添加如下图所示节点信息。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053102.png" width="40%" height="40%">
+</div>
+
+
+<p>interrupt-parent属性设置了该节点的中断父，interrupts属性中的三个数据依次表示：0——共享中断（设置为1表示为私有中断），56——中断号，1——上升沿触发。</p>
+<p>下表为AX7021芯片datasheet中的共享外部中断表，由表可知16个PL共享中断的中断号分别为61<del>68和84</del>91。我们使用的是第13个共享中断，对应的中断号为88。在设备树中设置中断号时，要<strong>在PL端中断号上减去32（后面解释）</strong>，因此设置为56。此外，由表可知共享中断仅支持上升沿或高电平触发，一般电平触发类型的中断对应的是持续性事件。在本例中，数据通知不属于持续性事件，我们选择上升沿触发。不同触发类型定义在linux内核源码<code>include/linux/irq.h</code>中，详见后图。</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053103.png" width="70%" height="70%">
+</div>
+
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053104.png" width="50%" height="50%">
+</div>
+
+
+<h3 id="通信驱动开发"><a href="#通信驱动开发" class="headerlink" title="通信驱动开发"></a>通信驱动开发</h3><p>待实现的功能为：用户态程序打开设备后持续调用read函数，以阻塞方式读取缓冲区数据，当缓冲区有数据后返回给用户态程序。</p>
+<p>具体驱动的开发使用platform驱动框架，应用了I&#x2F;O内存访问、中断机制和阻塞IO机制。由于PL端没有实现逻辑，因此中断触发采用按键形式，BRAM中的数据预埋（驱动代码中有体现）。</p>
+<h4 id="platform驱动框架"><a href="#platform驱动框架" class="headerlink" title="platform驱动框架"></a>platform驱动框架</h4><ul>
+<li>驱动框架</li>
+</ul>
+<p>linux 2.6以后的设备驱动模型最重要的3个实体为：<strong>总线、设备、驱动</strong>。总线负责将设备和驱动匹配。</p>
+<p>platform是一种虚拟的总线，其对应的设备为platform_device，驱动为platform_driver。</p>
+<pre><code class="c">//主结构platform_driver
+static struct platform_driver xxx_driver
+&#123;
+    .probe = xxx_probe,		//probe()是设备匹配后，声明驱动程序时所调用的函数
+    .remove = xxx_remove,	//remove()是驱动程序在被删除时调用
+    .driver = &#123;				//描述驱动自身，如名称、所有者等
+        .name = &quot;xxx&quot;,
+        .owner = THIS_MODULE,
+    &#125;,
+&#125;;
+</code></pre>
+<p><strong>注意</strong>：probe函数和init函数的区别：每当给定设备与驱动程序匹配时，都会调用probe函数，而init函数只在模块加载时运行一次。</p>
+<p>向内核注册平台驱动的基本框架：</p>
+<pre><code class="c">static int xxx_probe(struct platform_device *pdev)
+&#123;
+    ...
+&#125;
+
+static int xxx_remove(struct platform_device *pdev)
+&#123;
+    ...
+&#125;
+static struct platform_driver xxx_driver
+&#123;
+    .probe = xxx_probe,
+    .remove = xxx_remove,
+    .driver = &#123;
+        ...   
+    &#125;,
+&#125;;
+
+module_platform_driver(xxx_driver);	//将模块注册到平台驱动程序核心
+</code></pre>
+<ul>
+<li>平台设备</li>
+</ul>
+<p>有两种方法可以把有关设备所需的资源（中断、DMA、内存区域、I&#x2F;O端口、总线）和数据通知内核。一种是内核不支持设备树，另一种是内核支持设备树。其中内核不支持设备树，自行声明平台设备的方法已经废弃。</p>
+<ul>
+<li>设备和驱动的匹配</li>
+</ul>
+<p>总线驱动程序负责设备和驱动程序的匹配。每当连接新设备或向总线添加新的驱动程序时，总线都会启动匹配循环。</p>
+<p>内核中负责平台设备和驱动程序匹配功能的函数platform_match定义在&#x2F;drivers&#x2F;base&#x2F;platform.c中，具体如下：</p>
+<pre><code class="c">static int platform_match(struct device *dev, struct device_driver *drv)
+&#123;
+    struct platform_device *pdev = to_platform_device(dev);
+    struct platform_driver *pdrv = to_platform_driver(drv);
+
+    /* When driver_override is set, only bind to the matching driver */
+    if (pdev-&gt;driver_override)
+        return !strcmp(pdev-&gt;driver_override, drv-&gt;name);
+
+    /* Attempt an OF style match first */
+    if (of_driver_match_device(dev, drv))
+        return 1;
+
+    /* Then try ACPI style match */
+    if (acpi_driver_match_device(dev, drv))
+        return 1;
+
+    /* Then try to match against the id table */
+    if (pdrv-&gt;id_table)
+        return platform_match_id(pdrv-&gt;id_table, pdev) != NULL;
+
+    /* fall-back to driver name match */
+    return (strcmp(pdev-&gt;name, drv-&gt;name) == 0);
+&#125;
+</code></pre>
+<p>由代码可知，内核中共提供4种风格的匹配：OF风格、基于ACPI表、基于ID表、基于平台设备名字。这四种方式都是基于字符串比较。</p>
+<h4 id="I-O内存访问"><a href="#I-O内存访问" class="headerlink" title="I&#x2F;O内存访问"></a>I&#x2F;O内存访问</h4><p>地址空间分为内存空间和I&#x2F;O空间，X86处理器内存空间和I&#x2F;O空间采用独立编址，arm处理器内存空间和I&#x2F;O空间采用统一编址。对设备的控制，通常通过设备的寄存器（控制寄存器、读写寄存器、数据寄存器）来控制、读写设备，当这些寄存器位于I&#x2F;O空间中，通常被称为I&#x2F;O端口，当位于内存空间时，通常被称为I&#x2F;O内存。</p>
+<p>在vivado工程中可以查看BRAM的地址范围，可以通过访问I&#x2F;O内存的方式来读取BRAM中的数据。本例中I&#x2F;O内存访问的实现机制是将PL端BRAM的物理地址进行映射到一个虚拟地址，通过虚拟地址对该块内存进行读写操作。</p>
+<p>内核中提供了ioremap()来映射物理地址到虚拟地址，并使用iounmap()来释放获得的虚拟地址。映射后，可以通过虚拟地址直接读写BRAM。本例中使用的为ioremap_nocache()，为ioremap的无缓存版本，但实际上，在arm体系中，ioremap和ioremap_nocache实现是相同的。本例内核源码中，两者的定义如下图：</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053105.png">
+</div>
+
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053106.png">
+</div>
+
+
+<h4 id="中断机制"><a href="#中断机制" class="headerlink" title="中断机制"></a>中断机制</h4><ul>
+<li>申请中断号</li>
+</ul>
+<p>Linux驱动开发中，使用中断首先要申请中断号。前面我们已经将PL的外部中断写在了设备树中，<strong>使用platform_get_irq可以获取dts中设置的中断号</strong>。该函数定义在<code>.../drivers/bash/platform.c</code>中，具体代码见下图：</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053107.png">
+</div>
+
+
+<p>由源码追溯该函数的调用栈：platform_get_irq() —&gt; of_irq_get() —&gt; of_irq_parse_one() ，irq_create_of_mapping() —&gt; of_phandle_args_to_fwspec(), irq_create_fwspec_mapping() —&gt; irq_domain_translate()  —&gt; translate()，到此，可以看到translate定义在irq_domain_ops中，其具体由某个版本的irq-gic实现。</p>
+<blockquote>
+<p>（GIC，Generic Interrupt Controller）是arm公司提供的一个通用的中断控制器。gic的核心功能是对soc中外设的中断源的管理,并且提供给软件，配置以及控制这些中断源。</p>
+</blockquote>
+<p>在本例使用的内核源码中搜索一下，可以看到以下几个版本，</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053108.png">
+</div>
+
+
+<p>通过查阅资料，得到ZYNQ的中断控制器是基于GIC V1的版本，即irq-gic.c。打开irq-gic.c，找到translate的具体实现为gic_irq_domain_translate()函数，其具体实现如下：</p>
+<div align=center>
+    <img src="https://picbed.sigmapoet.com/img/2023053109.png">
+</div>
+
+
+<p><strong>可以看到，其在dts文件中获取的中断号要先加上16来跳过SGI型（0<del>15）中断，由于我们使用的是SPI中断，所以需要再加16（在ZYNQ手册中，实际是为了跳过16个PPI型（16</del>31）中断，跳到SPI型中断起点），即需要在dts文件中获取的中断号上加32，才为对应ZYNQ的中断号。这也解释了我们在dts中设置的中断号，为什么要在ZYNQ手册中断号的基础上减去32。</strong></p>
+<ul>
+<li>为中断号申请内核线程</li>
+</ul>
+<p>本例中使用request_threaded_irq来为我们申请的中断号分配一个对应的内核线程，该内核线程在中断发生时执行。我们可以在对应的函数中写入中断发生时我们需要进行的一些操作。</p>
+<h4 id="阻塞IO机制（等待队列）"><a href="#阻塞IO机制（等待队列）" class="headerlink" title="阻塞IO机制（等待队列）"></a>阻塞IO机制（等待队列）</h4><p>当用户态程序使用read、write系统调用时，如果设备的资源不可获取，用户又希望以阻塞的方式访问设备，那么驱动程序应在设备驱动的xxx_read()、xxx_write()等操作中将进程（用户态）阻塞直到资源可以获取。在Linux驱动程序中，可以使用等待队列来实现阻塞进程的唤醒。本驱动中，只要求一个阻塞读函数，其具体的实现原理如下：</p>
+<pre><code class="c">struct xxx_device &#123;
+    wait_queue_head_t my_queue;	//第一步：定义一个等待队列头部
+&#125;;
+struct xxx_device demo_device;
+
+static ssize_t xxx_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
+&#123;
+    int ret;
+    DECLARE_WAITQUEUE(wait, current);	//第三步：定义并初始一个名为wait的等待队列元素
+
+    mutex_lock(&amp;demo_device.mutex);
+    add_wait_queue(&amp;demo_device.r_wait, &amp;wait);	//第四步：将wait元素添加到r_wait等待队列中
+
+    while(demo_device.data_len == 0)
+    &#123;
+        __set_current_state(TASK_INTERRUPTIBLE);	//改变进程状态，wake_up_interruptible()可以唤醒牌TASK_INTERRUPTIBLE的进程
+        mutex_unlock(&amp;demo_device.mutex);
+
+        schedule();	//调度其它进程执行
+        if(signal_pending(current))	//如果是因为信号唤醒
+        &#123;
+            ret = -ERESTARTSYS;
+            goto out2;
+        &#125;
+        mutex_lock(&amp;demo_device.mutex);
+    &#125;
+
+    if(copy_to_user(buf, demo_device.reg_bram_base, 4))
+    &#123;
+        ret = -EFAULT;
+        goto out;
+    &#125;
+    else
+    &#123;
+        ret = 4;
+        demo_device.data_len = 0;
+    &#125;
+out:
+    mutex_unlock(&amp;demo_device.mutex);
+out2:
+    remove_wait_queue(&amp;demo_device.r_wait, &amp;wait);//将元素移出r_wait等待队列
+    set_current_state(TASK_RUNNING);	//设置进程状态为TASK_RUNNING
+
+    return ret;
+&#125;
+
+static int xxx_probe(struct platform_device *pdev) &#123;
+    ...
+    init_waitqueue_head(&amp;demo_device.my_queue);	//第二步：初始化等待队列头部
+    ...
+&#125;
+
+static irqreturn_t xxx_interrupt(int irq, void *dev_id) &#123;
+    ...
+    demo_device.data_len = 4;
+    wake_up_interruptible(&amp;demo_device.r_wait);	//该中断由缓冲区可读触发，在中断中唤醒队列。该操作
+                                                //会唤醒以r_wait作为等待队列头部的队列中所有的进程。
+    ...
+&#125;
+</code></pre>
+<p>当用户态程序调用read()时，驱动程序中xxx_read()开始执行，执行到schedule()时，进程进入休眠状态，等待中断里wake_up_interruptible唤醒。唤醒后，将数据从内核空间拷贝到用户空间。这样完成了一次阻塞IO的读写。</p>
+<h2 id="完整驱动代码"><a href="#完整驱动代码" class="headerlink" title="完整驱动代码"></a>完整驱动代码</h2><pre><code class="c">#include &lt;linux/kernel.h&gt;
+#include &lt;linux/version.h&gt;
+#include &lt;linux/module.h&gt;
+#include &lt;linux/types.h&gt;
+#include &lt;linux/errno.h&gt;
+#include &lt;linux/fcntl.h&gt;
+#include &lt;linux/mm.h&gt;
+#include &lt;linux/proc_fs.h&gt;
+#include &lt;linux/fs.h&gt;
+#include &lt;linux/slab.h&gt;
+#include &lt;linux/init.h&gt;
+#include &lt;asm/uaccess.h&gt;
+#include &lt;linux/delay.h&gt;
+#include &lt;linux/sched/signal.h&gt;
+
+#include &lt;asm/io.h&gt;
+#include &lt;linux/miscdevice.h&gt;
+#include &lt;linux/proc_fs.h&gt;
+#include &lt;linux/poll.h&gt;
+
+#include &lt;asm/bitops.h&gt;
+#include &lt;asm/uaccess.h&gt;
+#include &lt;asm/irq.h&gt;
+
+#include &lt;linux/moduleparam.h&gt;
+#include &lt;linux/ioport.h&gt;
+#include &lt;linux/interrupt.h&gt;
+#include &lt;linux/platform_device.h&gt;
+
+#define DEVICE_NAME &quot;irq_drv&quot;
+
+#define BRAM_BASE 0x80000000
+#define BRAM_SIZE 0x1000
+
+#define  ssp_readw(addr,ret)            (ret =(*(volatile unsigned int *)(addr)))
+#define  ssp_writew(addr,value)         ((*(volatile unsigned int *)(addr)) = (value))
+
+struct pspl_io_irq_device 
+&#123;
+    char devname[16];
+    int major, minor;
+    int irq;
+    int irq_is_open;
+    int data_len;
+
+    struct class *cls;
+    struct device *dev;
+    struct fasync_struct *irq_async;
+    resource_size_t remap_size;
+
+    void __iomem *reg_bram_base;
+
+    wait_queue_head_t r_wait;
+    struct mutex mutex;
+&#125;;
+
+struct pspl_io_irq_device pspl;
+
+static int pspl_open(struct inode *Inode, struct file *filp)
+&#123;
+    pspl.irq_is_open = 1;
+    filp-&gt;private_data = &amp;pspl;
+    
+    return 0;
+&#125;
+
+int pspl_release(struct inode *inode, struct file *filp)
+&#123;
+    pspl.irq_is_open = 0;
+
+    return 0;
+&#125;
+
+static ssize_t pspl_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
+&#123;
+    int ret;
+    DECLARE_WAITQUEUE(wait, current);
+
+    mutex_lock(&amp;pspl.mutex);
+    add_wait_queue(&amp;pspl.r_wait, &amp;wait);
+
+    while(pspl.data_len == 0)
+    &#123;
+        __set_current_state(TASK_INTERRUPTIBLE);
+        mutex_unlock(&amp;pspl.mutex);
+
+        schedule();
+        if(signal_pending(current))
+        &#123;
+            ret = -ERESTARTSYS;
+            goto out2;
+        &#125;
+        mutex_lock(&amp;pspl.mutex);
+    &#125;
+
+    if(copy_to_user(buf, pspl.reg_bram_base, 4))
+    &#123;
+        ret = -EFAULT;
+        goto out;
+    &#125;
+    else
+    &#123;
+        ret = 4;
+        pspl.data_len = 0;
+    &#125;
+out:
+    mutex_unlock(&amp;pspl.mutex);
+out2:
+    remove_wait_queue(&amp;pspl.r_wait, &amp;wait);
+    set_current_state(TASK_RUNNING);
+
+    return ret;
+&#125;
+
+static ssize_t pspl_write(struct file *filp, const char __user *buf, size_t count, loff_t *ppos)
+&#123;
+    return 0;
+&#125;
+
+static int pspl_fasync(int fd, struct file *filp, int on)
+&#123;
+    return fasync_helper (fd, filp, on, &amp;pspl.irq_async);
+&#125;
+
+static struct file_operations pspl_fops = &#123;
+    .owner = THIS_MODULE,
+    .open = pspl_open,
+    .read = pspl_read,
+    .write = pspl_write,
+    .fasync = pspl_fasync,
+    .release = pspl_release,
+&#125;;
+
+static irqreturn_t pspl_interrupt(int irq, void *dev_id)
+&#123;
+    printk(&quot;irq = %d\n&quot;, pspl.irq);
+    if(pspl.irq_is_open)
+    &#123;
+        pspl.data_len = 4;
+#if 1
+        ssp_writew(pspl.reg_bram_base, 0x11223344);
+        //ssp_writew(pspl.reg_bram_base+4, 0xaabbccdd);
+        //ssp_writew(pspl.reg_bram_base+8, 0xffffffff);
+        //ssp_writew(pspl.reg_bram_base+12, 0xabcdefab);
+#endif
+        wake_up_interruptible(&amp;pspl.r_wait);
+        kill_fasync(&amp;pspl.irq_async, SIGIO, POLL_IN);
+    &#125;
+
+    return IRQ_HANDLED;
+&#125;
+
+static int pspl_probe(struct platform_device *pdev)
+&#123; 
+    int err;
+    struct device *tmp_dev;
+
+    printk(&quot;irq_probe - sigmapoet\n&quot;);
+
+    memset(pspl.devname,0,16);
+    strcpy(pspl.devname, DEVICE_NAME);
+
+    pspl.irq_is_open = 0;
+    pspl.major = register_chrdev(0, pspl.devname, &amp;pspl_fops);
+    pspl.cls = class_create(THIS_MODULE, pspl.devname);
+    pspl.minor = 1;
+    tmp_dev = device_create(pspl.cls, &amp;pdev-&gt;dev, MKDEV(pspl.major, pspl.minor), NULL, pspl.devname);
+    if (IS_ERR(tmp_dev)) &#123;
+        //printk(&quot;irq_probe - device_create error\n&quot;);
+        class_destroy(pspl.cls);
+        unregister_chrdev(pspl.major, pspl.devname);
+        goto fail;
+    &#125;
+    //printk(&quot;irq_probe - device_create done\n&quot;);
+
+    pspl.irq = platform_get_irq(pdev,0);
+    if (pspl.irq &lt;= 0)
+    &#123;
+        //printk(&quot;irq_probe - platform_get_irq error : %d\n&quot;, irq);
+        return -ENXIO;
+    &#125;
+    //printk(&quot;irq_probe - platform_get_irq done\n&quot;);
+
+    pspl.dev = &amp;pdev-&gt;dev;
+    err = request_threaded_irq(pspl.irq, NULL, pspl_interrupt, IRQF_TRIGGER_RISING | IRQF_ONESHOT, pspl.devname, NULL);
+    if (err) &#123;
+        printk(KERN_ALERT &quot;irq_probe irqerror=%d\n&quot;, err);
+        goto fail;
+    &#125;
+    else
+    &#123;
+        printk(&quot;irq = %d\n&quot;, pspl.irq);
+        printk(&quot;devname = %s\n&quot;, pspl.devname);
+    &#125;
+
+    init_waitqueue_head(&amp;pspl.r_wait);
+    pspl.reg_bram_base = ioremap_nocache((unsigned long)BRAM_BASE, (unsigned long)BRAM_SIZE);
+    //保存dev
+    //platform_set_drvdata(pdev, &amp;xxx);
+
+    return 0;
+
+fail:
+    iounmap((void*)pspl.reg_bram_base);
+    free_irq(pspl.irq, NULL);
+    device_destroy(pspl.cls, MKDEV(pspl.major, pspl.minor));
+    class_destroy(pspl.cls);
+    unregister_chrdev(pspl.major, pspl.devname);
+    return -ENOMEM;
+&#125;
+
+static int pspl_remove(struct platform_device *pdev)
+&#123;
+    iounmap((void*)pspl.reg_bram_base);
+    device_destroy(pspl.cls, MKDEV(pspl.major, pspl.minor));
+    class_destroy(pspl.cls);
+    unregister_chrdev(pspl.major, pspl.devname);
+    free_irq(pspl.irq, NULL);
+    //printk(&quot;irq = %d\n&quot;, irq);
+    return 0;
+&#125;
+
+static int pspl_suspend(struct device *dev)
+&#123;
+    return 0;
+&#125;
+
+static int pspl_resume(struct device *dev)
+&#123;
+    return 0;
+&#125;
+
+static const struct dev_pm_ops pspl_pm_ops = &#123;
+    .suspend = pspl_suspend,
+    .resume = pspl_resume,
+&#125;;
+
+static const struct of_device_id pspl_of_match[] = &#123;
+    &#123;.compatible = &quot;hello,irq&quot; &#125;,
+    &#123; &#125;
+&#125;;
+
+MODULE_DEVICE_TABLE(of, pspl_of_match);
+
+static struct platform_driver pspl_driver = &#123;
+    .probe = pspl_probe,
+    .remove = pspl_remove,
+    .driver = &#123;
+        .owner = THIS_MODULE,
+        .name = &quot;irq@0&quot;,
+        .pm = &amp;pspl_pm_ops,
+        .of_match_table = pspl_of_match,
+    &#125;,
+&#125;;
+
+module_platform_driver(pspl_driver);
+MODULE_LICENSE(&quot;GPL v2&quot;);
+MODULE_AUTHOR(&quot;sigmapoet&quot;);
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以邮件至 sigma_poet@126.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2021-2023 SigmaPoet
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 562px;
+    }
+    .nav.fullscreen {
+        margin-left: -562px;
+    }
+    .nav-left {
+        width: 140px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 512px;
+        }
+        .nav.fullscreen {
+            margin-left: -512px;
+        }
+        .nav-left {
+            width: 120px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 512px;
+            margin-left: -512px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
